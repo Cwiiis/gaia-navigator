@@ -1,0 +1,90 @@
+<head>
+  <link rel="transition-exit" duration="0.5s" />
+  <script type="text/javascript" src="../gaia-navigator-client.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-flow: row;
+      flex-wrap: wrap;
+      align-content: stretch;
+      justify-content: space-around;
+    }
+
+    div.box {
+      display: inline-block;
+      width: calc(100vw / 3 - 6vw);
+      height: calc(100vw / 3 - 6vw);
+      margin: 3vw 0;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    div.box:hover,
+    div.box:active {
+      border: 2px solid grey;
+    }
+  </style>
+
+  <script>
+    var seed = 1;
+    function random() {
+      var x = Math.sin(seed++) * 10000;
+      return x - Math.floor(x);
+    }
+
+    function randomInt(min, max) {
+      return Math.round(random() * (max - min) + min);
+    }
+
+    function onBoxClick() {
+      console.log('Clicked on box ' + this.data);
+      var rect = this.getBoundingClientRect();
+      var data_string = rect.left + '&' + rect.top + '&' +
+        (rect.right - rect.left) + '&' + (rect.bottom - rect.top) + '&' +
+        this.style.backgroundColor;
+      gnc_navigate('test-2b.html?' + data_string);
+    }
+
+    window.addEventListener('load',
+      function setup() {
+        // Check if there's a saved scroll position and go to it
+
+        // Set colours on boxes and add click handlers
+        var boxes = document.getElementsByClassName('box');
+        for (var i = 0, iLen = boxes.length; i < iLen; i++) {
+          var box = boxes[i];
+          box.style.backgroundColor =
+            'rgb(' + randomInt(150, 255) + ',' +
+                     randomInt(150, 255) + ',' +
+                     randomInt(150, 255) + ')';
+          box.data = i;
+          box.addEventListener('click', onBoxClick);
+        }
+      });
+  </script>
+
+</head>
+
+<body>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+</body>
+

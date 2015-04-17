@@ -1,0 +1,114 @@
+<head>
+  <link rel="transition-enter" duration="0.5s" href="test-2-enter.css" />
+  <script type="text/javascript" src="../gaia-navigator-client.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: transparent;
+    }
+
+    div#bg {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 50%;
+      background: linear-gradient(to bottom,
+                                  rgb(100, 150, 250) 0%,
+                                  rgb(150, 175, 250) 95%,
+                                  rgba(255, 255, 255, 0));
+    }
+
+    div#detail {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 70%;
+      background-color: white;
+    }
+
+    div#box {
+      position: absolute;
+      top: 15%;
+      left: 12vw;
+      width: 35vw;
+      height: 35vw;
+      background-color: rgb(225, 175, 190);
+    }
+
+    div#back {
+      position: fixed;
+      bottom: 6vw;
+      right: 6vw;
+      width: 20vw;
+      height: 20vw;
+      border-radius: 100%;
+      background-color: rgba(255, 0, 0, 0.6);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 10vw;
+      cursor: pointer;
+    }
+  </style>
+
+  <script>
+    var oldRect;
+
+    function getBoxTransform(box) {
+      var newRect = box.getBoundingClientRect();
+      newRect.width = newRect.right - newRect.left;
+      newRect.height = newRect.bottom - newRect.top;
+      return 'translate(' + (oldRect.left - newRect.left) + 'px, ' +
+                            (oldRect.top - newRect.top) + 'px) ' +
+             'scale(' + (oldRect.width / newRect.width) + ', ' +
+                        (oldRect.height / newRect.height) + ')';
+    }
+
+    window.addEventListener('navigation-transition-start', function(e) {
+      if (!e.detail.back) {
+        return;
+      }
+
+      var box = document.getElementById('box');
+      box.style.transition = 'transform 0.5s';
+      box.style.transform = getBoxTransform(box);
+    });
+
+    window.onload = function() {
+      var data = decodeURI(location.search.slice(1)).split('&');
+      oldRect = { left: parseInt(data[0]),
+                  top: parseInt(data[1]),
+                  width: parseInt(data[2]),
+                  height: parseInt(data[3]) };
+      var color = data[4];
+
+      var box = document.getElementById('box');
+      box.style.backgroundColor = color;
+      box.style.transform = getBoxTransform(box);
+
+      window.requestAnimationFrame(function() {
+        window.requestAnimationFrame(function() {
+          box.addEventListener('transition-end', function transitionEnd() {
+            box.removeEventListener('transition-end', transitionEnd);
+            box.style.transition = '';
+          });
+          box.style.transition = 'transform 0.5s';
+          box.style.transform = '';
+        });
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <div id="bg"></div>
+  <div id="detail"></div>
+  <div id="box"></div>
+  <div id="back" onclick="gnc_back()">&lt;</div>
+</body>

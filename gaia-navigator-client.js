@@ -36,6 +36,16 @@ function gnc_back() {
   window.parent.postMessage({type: 'back'}, '*');
 }
 
+function gnc_getDuration(timeText) {
+  var duration;
+  if (timeText.indexOf('ms') !== -1) {
+    duration = parseInt(timeText);
+  } else {
+    duration = Math.round(parseFloat(timeText) * 1000.0);
+  }
+  return isNaN(duration) ? 0 : duration;
+}
+
 function gnc_transition(name, backwards, to) {
   console.log('Searching style links for ' + name);
 
@@ -52,21 +62,16 @@ function gnc_transition(name, backwards, to) {
 
     console.log('Found transition style', link);
 
-    var style = document.createElement('link');
-    style.type = 'text/css';
-    style.media = 'all';
-    style.rel = 'stylesheet';
-    style.href = link.href;
-    newStyles.push(style);
-
-    if (duration.indexOf('ms') !== -1) {
-      // Milliseconds
-      duration = parseInt(duration);
-    } else {
-      // Seconds
-      duration = parseFloat(duration) * 1000;
+    if (link.href && link.href.length > 0) {
+      var style = document.createElement('link');
+      style.type = 'text/css';
+      style.media = 'all';
+      style.rel = 'stylesheet';
+      style.href = link.href;
+      newStyles.push(style);
     }
 
+    duration = gnc_getDuration(duration);
     if (duration > longestDuration) {
       longestDuration = duration;
     }
@@ -92,6 +97,7 @@ function gnc_transition(name, backwards, to) {
             continue;
           }
 
+          // Switch animation-direction
           switch (rule['animation-direction']) {
           default:
           case 'normal':
@@ -110,29 +116,41 @@ function gnc_transition(name, backwards, to) {
             rule['animation-direction'] = 'alternate';
             break;
           }
+
+          // Modify animation-delay
+          var animDuration = gnc_getDuration(rule['animation-duration']);
+          var animDelay = gnc_getDuration(rule['animation-delay']);
+          var newDelay =
+            Math.max(0, (longestDuration - animDuration) - animDelay);
+          console.log('Longest duration, animation duration, old delay, new delay', longestDuration, animDuration, animDelay, newDelay);
+          rule['animation-delay'] = newDelay + 'ms';
+
           console.log('Switched direction of rule', rule);
         }
       }
     }
 
     // Fire transition-start signal
+    window.dispatchEvent(new CustomEvent('navigation-transition-start',
+                                         { detail: { back: backwards }}));
+
+    // After the transition starts, JS execution is meant to end on the from
+    // document, so only do the rest on the to document.
     if (to) {
-      window.dispatchEvent(new Event('navigation-transition-start'));
+      window.requestAnimationFrame(
+        function () {
+          window.setTimeout(function () {
+            // Remove transition styles
+            for (i = 0, iLen = newStyles.length; i < iLen; i++) {
+              document.head.removeChild(newStyles[i]);
+            }
+
+            // Fire transition-end signal
+            window.dispatchEvent(new CustomEvent('navigation-transition-end',
+                                   { detail: { back: backwards }}));
+          }, longestDuration);
+        });
     }
-
-    window.requestAnimationFrame(
-      function () {
-        window.setTimeout(function () {
-          for (i = 0, iLen = newStyles.length; i < iLen; i++) {
-            document.head.removeChild(newStyles[i]);
-          }
-
-          // Fire transition-end signal
-          if (to) {
-            window.dispatchEvent(new Event('navigation-transition-end'));
-          }
-        }, longestDuration);
-      });
   }, 0);
 
   return longestDuration;
@@ -147,7 +165,7 @@ function gnc_get_history() {
 }
 
 // Rewrite links on document load
-window.onload = gnc_rewrite_links;
+window.addEventListener('load', gnc_rewrite_links);
 
 window.addEventListener('message',
   function(e) {

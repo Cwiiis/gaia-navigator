@@ -52,12 +52,18 @@ function transition() {
     oldFrame.contentWindow.postMessage({type: 'transition-from',
                                         name: name,
                                         backwards: backwards}, '*');
+    if (backwards) {
+      oldFrame.classList.add('above');
+    }
   }
 
   name = backwards ? 'transition-exit' : 'transition-enter';
   newFrame.contentWindow.postMessage({type: 'transition-to',
                                       name: name,
                                       backwards: backwards}, '*');
+  if (!backwards) {
+    newFrame.classList.add('above');
+  }
 }
 
 window.addEventListener('message',
