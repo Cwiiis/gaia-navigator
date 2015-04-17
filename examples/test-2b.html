@@ -37,6 +37,7 @@
       width: 35vw;
       height: 35vw;
       background-color: rgb(225, 175, 190);
+      transform-origin: 0 0;
     }
 
     div#back {
@@ -82,10 +83,10 @@
 
     window.onload = function() {
       var data = decodeURI(location.search.slice(1)).split('&');
-      oldRect = { left: parseInt(data[0]),
-                  top: parseInt(data[1]),
-                  width: parseInt(data[2]),
-                  height: parseInt(data[3]) };
+      oldRect = { left: parseFloat(data[0]),
+                  top: parseFloat(data[1]),
+                  width: parseFloat(data[2]),
+                  height: parseFloat(data[3]) };
       var color = data[4];
 
       var box = document.getElementById('box');

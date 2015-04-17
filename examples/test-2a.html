@@ -41,9 +41,11 @@
     function onBoxClick() {
       console.log('Clicked on box ' + this.data);
       var rect = this.getBoundingClientRect();
-      var data_string = rect.left + '&' + rect.top + '&' +
-        (rect.right - rect.left) + '&' + (rect.bottom - rect.top) + '&' +
-        this.style.backgroundColor;
+      var data_string = rect.left + '&' +
+                        rect.top + '&' +
+                        (rect.right - rect.left) + '&' +
+                        (rect.bottom - rect.top) + '&' +
+                        this.style.backgroundColor;
       gnc_navigate('test-2b.html?' + data_string);
     }
 
