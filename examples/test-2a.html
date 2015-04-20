@@ -40,6 +40,11 @@
 
     function onBoxClick() {
       console.log('Clicked on box ' + this.data);
+
+      // Save scroll position
+      document.cookie = document.body.scrollTop;
+
+      // Get position/colour data and navigate to new page
       var rect = this.getBoundingClientRect();
       var data_string = rect.left + '&' +
                         rect.top + '&' +
@@ -52,6 +57,7 @@
     window.addEventListener('load',
       function setup() {
         // Check if there's a saved scroll position and go to it
+        document.body.scrollTop = parseInt(document.cookie) || 0;
 
         // Set colours on boxes and add click handlers
         var boxes = document.getElementsByClassName('box');
