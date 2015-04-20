@@ -71,15 +71,12 @@
                         (oldRect.height / newRect.height) + ')';
     }
 
-    window.addEventListener('navigation-transition-start', function(e) {
-      if (!e.detail.back) {
-        return;
-      }
-
+    function test2_back() {
       var box = document.getElementById('box');
       box.style.transition = 'transform 0.5s';
       box.style.transform = getBoxTransform(box);
-    });
+      gnc_back();
+    }
 
     window.onload = function() {
       var data = decodeURI(location.search.slice(1)).split('&');
@@ -111,5 +108,5 @@
   <div id="bg"></div>
   <div id="detail"></div>
   <div id="box"></div>
-  <div id="back" onclick="gnc_back()">&lt;</div>
+  <div id="back" onclick="test2_back()">&lt;</div>
 </body>
