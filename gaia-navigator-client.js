@@ -3,9 +3,8 @@
  * Retrieves all anchor tags that point to a new url in the document and
  * rewrites them to be navigation-transition friendly.
  */
-function gnc_rewrite_links() {
+function gnc_on_load() {
   console.log('Rewriting links');
-
   var anchors = document.getElementsByTagName('a');
   for (var i = 0, iLen = anchors.length; i < iLen; i++) {
     var a = anchors[i];
@@ -23,7 +22,38 @@ function gnc_rewrite_links() {
     a.href = '';
   }
 
-  window.parent.postMessage({type: 'loaded'}, '*');
+  console.log('Checking for transition styles');
+  var styles = document.head.getElementsByTagName('link');
+
+  var nRequests = 0;
+  for (var i = 0, iLen = styles.length; i < iLen; i++) {
+    var link = styles[i];
+    var duration = link.getAttribute('duration');
+    if (((link.rel !== 'transition-enter') &&
+         (link.rel !== 'transition-exit')) ||
+        !duration || !link.href || !link.href.length) {
+      continue;
+    }
+
+    console.log('Pre-loading transition stylesheet at ' + link.href);
+    nRequests ++;
+    var request = new XMLHttpRequest();
+    request.open('GET', link.href);
+    request.overrideMimeType('text/css');
+    request.onreadystatechange = function(elem) {
+      return function () {
+        elem.styleData = this.responseText;
+        if (--nRequests === 0) {
+          window.parent.postMessage({type: 'loaded'}, '*');
+        }
+      }
+    }(link);
+    request.send();
+  }
+
+  if (nRequests === 0) {
+    window.parent.postMessage({type: 'loaded'}, '*');
+  }
 }
 
 function gnc_navigate(url) {
@@ -63,11 +93,8 @@ function gnc_transition(name, backwards, to) {
     console.log('Found transition style', link);
 
     if (link.href && link.href.length > 0) {
-      var style = document.createElement('link');
-      style.type = 'text/css';
-      style.media = 'all';
-      style.rel = 'stylesheet';
-      style.href = link.href;
+      var style = document.createElement('style');
+      style.appendChild(document.createTextNode(link.styleData));
       newStyles.push(style);
     }
 
@@ -81,77 +108,70 @@ function gnc_transition(name, backwards, to) {
     document.head.appendChild(newStyles[i]);
   }
 
-  // Accessing the rules immediately after adding results in an exception in
-  // Firefox (works fine in Chrome), so do this in a timeout.
-  window.setTimeout(function() {
-    // Alter the CSS rules to reverse animations when backwards is true
-    if (backwards) {
-      var nSheets = document.styleSheets.length;
-      for (var i = nSheets - 1; i >= nSheets - newStyles.length; i--) {
-        console.log('Reversing animation direction of rules');
-        var styleSheet = document.styleSheets[i];
-        var length = styleSheet.cssRules.length;
-        for (var j = 0; j < length; j++) {
-          var rule = styleSheet.cssRules[j].style;
-          if (!rule || rule['animation-name'] === '') {
-            continue;
-          }
-
-          // Switch animation-direction
-          switch (rule['animation-direction']) {
-          default:
-          case 'normal':
-            rule['animation-direction'] = 'reverse';
-            break;
-
-          case 'reverse':
-            rule['animation-direction'] = 'normal';
-            break;
-
-          case 'alternate':
-            rule['animation-direction'] = 'alternate-reverse';
-            break;
-
-          case 'alternate-reverse':
-            rule['animation-direction'] = 'alternate';
-            break;
-          }
-
-          // Modify animation-delay
-          var animDuration = gnc_getDuration(rule['animation-duration']);
-          var animDelay = gnc_getDuration(rule['animation-delay']);
-          var newDelay =
-            Math.max(0, (longestDuration - animDuration) - animDelay);
-          console.log('Longest duration, animation duration, old delay, new delay', longestDuration, animDuration, animDelay, newDelay);
-          rule['animation-delay'] = newDelay + 'ms';
-
-          console.log('Switched direction of rule', rule);
+  // Alter the CSS rules to reverse animations when backwards is true
+  if (backwards) {
+    console.log('Reversing animation direction of rules');
+    var nSheets = document.styleSheets.length;
+    for (var i = nSheets - 1; i >= nSheets - newStyles.length; i--) {
+      var styleSheet = document.styleSheets[i];
+      var length = styleSheet.cssRules.length;
+      for (var j = 0; j < length; j++) {
+        var rule = styleSheet.cssRules[j].style;
+        if (!rule || rule['animation-name'] === '') {
+          continue;
         }
+
+        // Switch animation-direction
+        switch (rule['animation-direction']) {
+        default:
+        case 'normal':
+          rule['animation-direction'] = 'reverse';
+          break;
+
+        case 'reverse':
+          rule['animation-direction'] = 'normal';
+          break;
+
+        case 'alternate':
+          rule['animation-direction'] = 'alternate-reverse';
+          break;
+
+        case 'alternate-reverse':
+          rule['animation-direction'] = 'alternate';
+          break;
+        }
+
+        // Modify animation-delay
+        var animDuration = gnc_getDuration(rule['animation-duration']);
+        var animDelay = gnc_getDuration(rule['animation-delay']);
+        var newDelay =
+          Math.max(0, (longestDuration - animDuration) - animDelay);
+        rule['animation-delay'] = newDelay + 'ms';
       }
     }
+  }
 
-    // Fire transition-start signal
-    window.dispatchEvent(new CustomEvent('navigation-transition-start',
-                                         { detail: { back: backwards }}));
+  // Fire transition-start signal
+  window.dispatchEvent(new CustomEvent('navigation-transition-start',
+                                       { detail: { back: backwards }}));
 
-    // After the transition starts, JS execution is meant to end on the from
-    // document, so only do the rest on the to document.
-    if (to) {
-      window.requestAnimationFrame(
-        function () {
-          window.setTimeout(function () {
-            // Remove transition styles
-            for (i = 0, iLen = newStyles.length; i < iLen; i++) {
-              document.head.removeChild(newStyles[i]);
-            }
+  // After the transition starts, JS execution is meant to end on the from
+  // document, so only do the rest on the to document.
+  if (to) {
+    window.requestAnimationFrame(
+      function () {
+        window.setTimeout(function () {
+          // Remove transition styles
+          for (i = 0, iLen = newStyles.length; i < iLen; i++) {
+            document.head.removeChild(newStyles[i]);
+          }
 
-            // Fire transition-end signal
-            window.dispatchEvent(new CustomEvent('navigation-transition-end',
-                                   { detail: { back: backwards }}));
-          }, longestDuration);
-        });
-    }
-  }, 0);
+          // Fire transition-end signal
+          window.dispatchEvent(new CustomEvent('navigation-transition-end',
+                                 { detail: { back: backwards }}));
+        }, longestDuration);
+      });
+  }
 
   return longestDuration;
 }
@@ -165,7 +185,7 @@ function gnc_get_history() {
 }
 
 // Rewrite links on document load
-window.addEventListener('load', gnc_rewrite_links);
+window.addEventListener('load', gnc_on_load);
 
 window.addEventListener('message',
   function(e) {

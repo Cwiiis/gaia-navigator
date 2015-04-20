@@ -8,8 +8,6 @@ var navHistory = {
 function navigate(url) {
   // TODO: Tidy up old transitions
 
-  console.log('Navigating to ' + url);
-
   var frames = document.getElementsByTagName('iframe');
   var oldFrame = frames.length ? frames[0] : null;
 
@@ -26,8 +24,6 @@ function navigate(url) {
 }
 
 function transition() {
-  console.log('Document loaded, initiating transition');
-
   var frames = document.getElementsByTagName('iframe');
   if (frames.length > 2) {
     console.error('More than two iframes at transition start');
@@ -104,23 +100,21 @@ window.addEventListener('message',
       break;
 
     case 'transition-start':
-      window.setTimeout(function() {
-        window.requestAnimationFrame(function() {
-          // Remove the loading style to unhide the new frame
-          var frames = document.getElementsByTagName('iframe');
-          var newFrame = frames[frames.length - 1];
-          newFrame.classList.remove('loading');
+      window.requestAnimationFrame(function() {
+        // Remove the loading style to unhide the new frame
+        var frames = document.getElementsByTagName('iframe');
+        var newFrame = frames[frames.length - 1];
+        newFrame.classList.remove('loading');
 
-          // Remove the old frame from the document after the transition finishes
-          window.setTimeout(function() {
-            if (frames.length > 1) {
-              document.body.removeChild(document.getElementsByTagName('iframe')[0]);
-            }
-            newFrame.classList.remove('to');
-            newFrame.classList.remove('above');
-          }, e.data.duration);
-        });
-      }, 0);
+        // Remove the old frame from the document after the transition finishes
+        window.setTimeout(function() {
+          if (frames.length > 1) {
+            document.body.removeChild(document.getElementsByTagName('iframe')[0]);
+          }
+          newFrame.classList.remove('to');
+          newFrame.classList.remove('above');
+        }, e.data.duration);
+      });
       break;
     }
   });
