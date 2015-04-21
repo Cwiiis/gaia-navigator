@@ -67,6 +67,10 @@ function gnc_back() {
 }
 
 function gnc_getDuration(timeText) {
+  if (!timeText) {
+    return 0;
+  }
+
   var duration;
   if (timeText.indexOf('ms') !== -1) {
     duration = parseInt(timeText);
