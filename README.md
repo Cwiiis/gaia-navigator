@@ -9,7 +9,7 @@ An API will be suggested that will allow transitions to be performed between pag
 Navigation transitions will be specified within a specialised stylesheet. These stylesheets will be included in the document as new link rel types. Transitions can be specified for entering and exiting the document. When the document is ready to transition, these stylesheets will be applied for the specified duration, after which they will stop applying.
 
 Example syntax;
-```css
+```html
 <link rel="transition-enter" duration="0.25s" href="URI" />
 <link rel="transition-exit" duration="0.25s" href="URI" />
 ```
