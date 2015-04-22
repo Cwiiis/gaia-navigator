@@ -9,10 +9,10 @@ An API will be suggested that will allow transitions to be performed between pag
 Navigation transitions will be specified within a specialised stylesheet. These stylesheets will be included in the document as new link rel types. Transitions can be specified for entering and exiting the document. When the document is ready to transition, these stylesheets will be applied for the specified duration, after which they will stop applying.
 
 Example syntax;
-<pre><code>
+```css
 <link rel="transition-enter" duration="0.25s" href="URI" />
 <link rel="transition-exit" duration="0.25s" href="URI" />
-</code></pre>
+```
 
 When navigating to a new page, the current page's transition-exit stylesheet will be referenced, and the new page's transition-enter stylesheet will be referenced.
 
@@ -65,6 +65,7 @@ It is suggested that default transition stylesheets may be specified by extendin
 Simple slide between two pages:
 
 [page-1.html]
+```html
 <head>
   <link rel="transition-exit" duration="0.25s" href="page-1-exit.css" />
   <style>
@@ -83,8 +84,10 @@ Simple slide between two pages:
 <body>
   <div id="bg" onclick="window.location='page-2.html'"></div>
 </body>
+```
 
 [page-1-exit.css]
+```css
 #bg {
   animation-name: slide-left;
   animation-duration: 0.25s;
@@ -94,8 +97,10 @@ Simple slide between two pages:
   from {}
   to { transform: translateX(-100%); }
 }
+```
 
 [page-2.html]
+```html
 <head>
   <link rel="transition-enter" duration="0.25s" href="page-2-enter.css" />
   <style>
@@ -114,8 +119,10 @@ Simple slide between two pages:
 <body>
   <div id="bg" onclick="history.back()"></div>
 </body>
+```
 
 [page-2-enter.css]
+```css
 #bg {
   animation-name: slide-from-left;
   animation-duration: 0.25s;
@@ -125,3 +132,4 @@ Simple slide between two pages:
   from { transform: translateX(100%) }
   to {}
 }
+```
