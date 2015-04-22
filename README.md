@@ -9,8 +9,10 @@ An API will be suggested that will allow transitions to be performed between pag
 Navigation transitions will be specified within a specialised stylesheet. These stylesheets will be included in the document as new link rel types. Transitions can be specified for entering and exiting the document. When the document is ready to transition, these stylesheets will be applied for the specified duration, after which they will stop applying.
 
 Example syntax;
-	<link rel="transition-enter" duration="0.25s" href="URI" />
-	<link rel="transition-exit" duration="0.25s" href="URI" />
+<pre><code>
+<link rel="transition-enter" duration="0.25s" href="URI" />
+<link rel="transition-exit" duration="0.25s" href="URI" />
+</code></pre>
 
 When navigating to a new page, the current page's transition-exit stylesheet will be referenced, and the new page's transition-enter stylesheet will be referenced.
 
@@ -63,63 +65,63 @@ It is suggested that default transition stylesheets may be specified by extendin
 Simple slide between two pages:
 
 [page-1.html]
-	<head>
-	  <link rel="transition-exit" duration="0.25s" href="page-1-exit.css" />
-	  <style>
-	    body {
-	      border: 0;
-	      height: 100%;
-	    }
-	
-	    #bg {
-	      width: 100%;
-	      height: 100%;
-	      background-color: red;
-	    }
-	  </style>
-	</head>
-	<body>
-	  <div id="bg" onclick="window.location='page-2.html'"></div>
-	</body>
+<head>
+  <link rel="transition-exit" duration="0.25s" href="page-1-exit.css" />
+  <style>
+    body {
+      border: 0;
+      height: 100%;
+    }
+
+    #bg {
+      width: 100%;
+      height: 100%;
+      background-color: red;
+    }
+  </style>
+</head>
+<body>
+  <div id="bg" onclick="window.location='page-2.html'"></div>
+</body>
 
 [page-1-exit.css]
-	#bg {
-	  animation-name: slide-left;
-	  animation-duration: 0.25s;
-	}
-	
-	@keyframes slide-left {
-	  from {}
-	  to { transform: translateX(-100%); }
-	}
+#bg {
+  animation-name: slide-left;
+  animation-duration: 0.25s;
+}
+
+@keyframes slide-left {
+  from {}
+  to { transform: translateX(-100%); }
+}
 
 [page-2.html]
-	<head>
-	  <link rel="transition-enter" duration="0.25s" href="page-2-enter.css" />
-	  <style>
-	    body {
-	      border: 0;
-	      height: 100%;
-	    }
-	
-	    #bg {
-	      width: 100%;
-	      height: 100%;
-	      background-color: green;
-	    }
-	  </style>
-	</head>
-	<body>
-	  <div id="bg" onclick="history.back()"></div>
-	</body>
+<head>
+  <link rel="transition-enter" duration="0.25s" href="page-2-enter.css" />
+  <style>
+    body {
+      border: 0;
+      height: 100%;
+    }
+
+    #bg {
+      width: 100%;
+      height: 100%;
+      background-color: green;
+    }
+  </style>
+</head>
+<body>
+  <div id="bg" onclick="history.back()"></div>
+</body>
 
 [page-2-enter.css]
-	#bg {
-	  animation-name: slide-from-left;
-	  animation-duration: 0.25s;
-	}
-	
-	@keyframes slide-from-left {
-	  from { transform: translateX(100%) }
-	  to {}
-	}
+#bg {
+  animation-name: slide-from-left;
+  animation-duration: 0.25s;
+}
+
+@keyframes slide-from-left {
+  from { transform: translateX(100%) }
+  to {}
+}
