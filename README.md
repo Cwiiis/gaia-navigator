@@ -1,3 +1,17 @@
+# gaia-navigator
+
+Gaia Navigator is a partial implementation of a specification proposal, outlined below.
+
+## Limitations
+
+* A 'wrapper' page must be used, that includes [gaia-navigator-host.js](gaia-navigator-host.js) and that contains a single iframe in the body of the document. This iframe can have its source set to the page you would like to load initially.
+* Each page must include [gaia-navigator-client.js](gaia-navigator-client.js).
+* For reverse animations to work correctly, CSS property animation-delay must always be specified together with animation-duration.
+* JavaScript navigations should use the shim history and location objects available via gnc_get_history and gnc_get_location.
+* Actual browser history will not reflect the effective navigation history.
+
+---
+
 # Navigation Transitions specification proposal
 
 ## Abstract
@@ -24,13 +38,12 @@ When a navigation is initiated, the old page will stay at its current position a
 
 When navigating backwards, the CSS animations timeline will be reversed. This will have the effect of modifying the meaning of animation-direction like so;
 
-<table>
-  <tr><td>Forwards</td><td>Backwards</td></tr>
-  <tr><td>normal</td><td>reverse</td></tr>
-  <tr><td>reverse</td><td>normal</td></tr>
-  <tr><td>alternate</td><td>alternate-reverse</td></tr>
-  <tr><td>alternate-reverse</td><td>alternate</td></tr>
-</table>
+| Forwards          | Backwards         |
+| ----------------- | ----------------- |
+| normal            | reverse           |
+| reverse           | normal            |
+| alternate         | alternate-reverse |
+| alternate-reverse | alternate         |
 
 and this will also alter the start time of the animation, depending on the declared total duration of the transition. For example, if a navigation stylesheet is declared to last 0.5s and an animation has a duration of 0.25s, when navigating backwards, that animation will effectively have an animation-delay of 0.25s. Similarly, if it already had an animation-delay of 0.1s, the animation-delay going backwards would become 0.15s, to reflect the time when the animation would have ended.
 

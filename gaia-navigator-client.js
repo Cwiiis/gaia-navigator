@@ -195,6 +195,11 @@ function gnc_get_history() {
   return history;
 }
 
+function gnc_get_location() {
+  // TODO: Shim location
+  return location;
+}
+
 // Rewrite links on document load
 window.addEventListener('load', gnc_on_load);
 
