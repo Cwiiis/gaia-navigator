@@ -121,36 +121,43 @@ function gnc_transition(name, backwards, to) {
       var length = styleSheet.cssRules.length;
       for (var j = 0; j < length; j++) {
         var rule = styleSheet.cssRules[j].style;
-        if (!rule || rule['animation-name'] === '') {
+
+        if (!rule) {
           continue;
         }
 
-        // Switch animation-direction
-        switch (rule['animation-direction']) {
-        default:
-        case 'normal':
-          rule['animation-direction'] = 'reverse';
-          break;
+        if (rule['animation-name'] !== '' ||
+            rule['animation-direction'] !== '') {
+          // Switch animation-direction
+          switch (rule['animation-direction']) {
+          default:
+          case 'normal':
+            rule['animation-direction'] = 'reverse';
+            break;
 
-        case 'reverse':
-          rule['animation-direction'] = 'normal';
-          break;
+          case 'reverse':
+            rule['animation-direction'] = 'normal';
+            break;
 
-        case 'alternate':
-          rule['animation-direction'] = 'alternate-reverse';
-          break;
+          case 'alternate':
+            rule['animation-direction'] = 'alternate-reverse';
+            break;
 
-        case 'alternate-reverse':
-          rule['animation-direction'] = 'alternate';
-          break;
+          case 'alternate-reverse':
+            rule['animation-direction'] = 'alternate';
+            break;
+          }
         }
 
-        // Modify animation-delay
-        var animDuration = gnc_getDuration(rule['animation-duration']);
-        var animDelay = gnc_getDuration(rule['animation-delay']);
-        var newDelay =
-          Math.max(0, (longestDuration - animDuration) - animDelay);
-        rule['animation-delay'] = newDelay + 'ms';
+        if (rule['animation-name'] !== '' ||
+            rule['animation-delay'] !== '') {
+          // Modify animation-delay
+          var animDuration = gnc_getDuration(rule['animation-duration']);
+          var animDelay = gnc_getDuration(rule['animation-delay']);
+          var newDelay =
+            Math.max(0, (longestDuration - animDuration) - animDelay);
+          rule['animation-delay'] = newDelay + 'ms';
+        }
       }
     }
   }
