@@ -189,17 +189,55 @@ function gnc_transition(name, backwards, to) {
   return longestDuration;
 }
 
-/**
- * Returns a replacement history object
- */
-function gnc_get_history() {
-  // TODO: Shim history
-  return history;
+function gnc_getLocation() {
+  var fakeLocation = {};
+  for (property in location) {
+    switch (property) {
+      case 'assign':
+        fakeLocation[property] = function(uri) {
+          if (!uri.length) {
+            return;
+          }
+
+          var url = new URL(location);
+          try {
+            url = new URL(uri);
+          } catch(e) {
+            url = new URL(location);
+            url.pathname =
+              location.pathname.
+                slice(0, location.pathname.lastIndexOf('/') + 1) + uri;
+          }
+
+          if (url.origin !== location.origin ||
+              url.pathname !== location.pathname ||
+              url.port !== location.port) {
+            gnc_navigate(url.href);
+            return;
+          }
+
+          location.assign(uri);
+        };
+        break;
+
+      case 'href':
+        Object.defineProperty(fakeLocation, 'href', {
+          enumerable: true,
+          get: function() { return location.href; },
+          set: function(uri) { this.assign(uri); }
+        });
+        break;
+
+      default:
+        fakeLocation[property] = location[property];
+    }
+  }
+
+  return fakeLocation;
 }
 
-function gnc_get_location() {
-  // TODO: Shim location
-  return location;
+function gnc_getHistory() {
+  return history;
 }
 
 // Rewrite links on document load

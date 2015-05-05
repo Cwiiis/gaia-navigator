@@ -7,8 +7,7 @@ Gaia Navigator is a partial implementation of a specification proposal, outlined
 * The first page must include, [gaia-navigator-host.css](gaia-navigator-host.css), [gaia-navigator-host.js](gaia-navigator-host.js) and [gaia-navigator-client.js](gaia-navigator-client.js). Each subsequent page need only include [gaia-navigator-client.js](gaia-navigator-client.js).
 * Alternatively, a 'wrapper' page can be used that contains a single iframe in the body of the document and need only include the host script and style. The iframe can have its source set to the page you would like to load initially.
 * For reverse animations to work correctly, CSS property animation-delay must always be specified together with animation-duration.
-* JavaScript navigations should use the shim history and location objects available via gnc_get_history and gnc_get_location.
-* Actual browser history will not reflect the effective navigation history.
+* Direct manipulation of the history and location objects will have unexpected results, instead use the shim objects available via gnc_getHistory and gnc_getLocation.
 
 ---
 

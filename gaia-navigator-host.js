@@ -105,14 +105,17 @@ window.addEventListener('message',
       break;
 
     case 'host-loaded':
+      var iframes = document.getElementsByClassName('gaia-navigator-iframe');
       if (gnhNavHistory.position === -1) {
-        var iframes = document.getElementsByClassName('gaia-navigator-iframe');
         var url = iframes.length ? iframes[0].src : location.href;
         gnhNavHistory.urls.push(gnh_normalise_url(url));
         gnhNavHistory.position = 0;
       }
 
-      gnh_transition();
+      if (iframes.length &&
+          iframes[iframes.length - 1].classList.contains('loading')) {
+        gnh_transition();
+      }
       break;
 
     case 'host-transition-start':
