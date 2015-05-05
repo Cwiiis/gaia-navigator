@@ -1,65 +1,78 @@
 
-var backwards = false;
-var navHistory = {
+var gnhBackwards = false;
+var gnhNavHistory = {
   urls: [],
   position: -1
 };
 
-function navigate(url) {
+function gnh_navigate(url) {
   // TODO: Tidy up old transitions
 
-  var frames = document.getElementsByTagName('iframe');
-  var oldFrame = frames.length ? frames[0] : null;
+  var frames = document.getElementsByClassName('gaia-navigator-iframe');
+  var oldFrame = frames.length ? frames[0] : document.body;
 
-  if (oldFrame) {
-    oldFrame.classList.add('from');
-  }
+  oldFrame.classList.add('from');
 
   var newFrame = document.createElement('iframe');
-  newFrame.classList.add('loading');
-  newFrame.classList.add('to');
+  newFrame.className = 'gaia-navigator-iframe loading to'
 
   document.body.appendChild(newFrame);
   newFrame.src = url;
 }
 
-function transition() {
-  var frames = document.getElementsByTagName('iframe');
+function gnh_transition() {
+  var frames = document.getElementsByClassName('gaia-navigator-iframe');
   if (frames.length > 2) {
     console.error('More than two iframes at transition start');
   }
   if (frames.length < 1) {
-    console.error('No frames to transition');
+    console.log('No frames to transition');
     return;
   }
 
-  var oldFrame, newFrame;
+  var oldFrame, oldWindow, newFrame, newWindow;
   if (frames.length === 1) {
-    oldFrame = null;
+    oldFrame = document.body;
+    oldWindow = window;
     newFrame = frames[0];
+    newWindow = newFrame.contentWindow;
   } else {
     oldFrame = frames[0];
+    oldWindow = oldFrame.contentWindow;
     newFrame = frames[1];
+    newWindow = newFrame.contentWindow;
   }
 
   var name;
-  if (oldFrame) {
-    name = backwards ? 'transition-enter' : 'transition-exit';
-    oldFrame.contentWindow.postMessage({type: 'transition-from',
-                                        name: name,
-                                        backwards: backwards}, '*');
-    if (backwards) {
-      oldFrame.classList.add('above');
+  name = gnhBackwards ? 'transition-enter' : 'transition-exit';
+  oldWindow.postMessage({ type: 'client-transition-from',
+                          name: name,
+                          backwards: gnhBackwards }, '*');
+  if (gnhBackwards) {
+    oldFrame.classList.add('above');
+  }
+
+  name = gnhBackwards ? 'transition-exit' : 'transition-enter';
+  newWindow.postMessage({ type: 'client-transition-to',
+                          name: name,
+                          backwards: gnhBackwards }, '*');
+  if (!gnhBackwards) {
+    newFrame.classList.add('above');
+  }
+}
+
+function gnh_normalise_url(url) {
+  // You can't have nest the same URL in an iframe it seems, so make
+  // some small modification
+  if (url === location.href) {
+    if (url.indexOf('?') !== -1) {
+      url = url + '&gaia-navigator=1';
+    } else {
+      url = url + '?gaia-navigator=1';
     }
   }
 
-  name = backwards ? 'transition-exit' : 'transition-enter';
-  newFrame.contentWindow.postMessage({type: 'transition-to',
-                                      name: name,
-                                      backwards: backwards}, '*');
-  if (!backwards) {
-    newFrame.classList.add('above');
-  }
+  return url;
 }
 
 window.addEventListener('message',
@@ -67,49 +80,56 @@ window.addEventListener('message',
     console.log('Host received message', e.data);
 
     switch (e.data.type) {
-    case 'navigate':
-      backwards = false;
-      var url = e.data.url;
+    case 'host-navigate':
+      gnhBackwards = false;
+      var url = gnh_normalise_url(e.data.url);
 
       // Alter history
-      if (navHistory.position >= 0) {
-        navHistory.urls = navHistory.urls.slice(0, navHistory.position + 1);
+      if (gnhNavHistory.position >= 0) {
+        gnhNavHistory.urls =
+          gnhNavHistory.urls.slice(0, gnhNavHistory.position + 1);
       }
-      navHistory.urls.push(url);
-      navHistory.position ++;
+      gnhNavHistory.urls.push(url);
+      gnhNavHistory.position ++;
 
-      navigate(url);
+      gnh_navigate(url);
       break;
 
-    case 'back':
-      if (navHistory.position < 1) {
+    case 'host-back':
+      if (gnhNavHistory.position < 1) {
         break;
       }
 
-      backwards = true;
-      navigate(navHistory.urls[--navHistory.position]);
+      gnhBackwards = true;
+      gnh_navigate(gnhNavHistory.urls[--gnhNavHistory.position]);
       break;
 
-    case 'loaded':
-      if (navHistory.position === -1) {
-        navHistory.urls.push(document.getElementsByTagName('iframe')[0].src);
-        navHistory.position = 0;
+    case 'host-loaded':
+      if (gnhNavHistory.position === -1) {
+        var iframes = document.getElementsByClassName('gaia-navigator-iframe');
+        var url = iframes.length ? iframes[0].src : location.href;
+        gnhNavHistory.urls.push(gnh_normalise_url(url));
+        gnhNavHistory.position = 0;
       }
 
-      transition();
+      gnh_transition();
       break;
 
-    case 'transition-start':
+    case 'host-transition-start':
       window.requestAnimationFrame(function() {
         // Remove the loading style to unhide the new frame
-        var frames = document.getElementsByTagName('iframe');
+        var frames = document.getElementsByClassName('gaia-navigator-iframe');
         var newFrame = frames[frames.length - 1];
         newFrame.classList.remove('loading');
 
         // Remove the old frame from the document after the transition finishes
         window.setTimeout(function() {
-          if (frames.length > 1) {
-            document.body.removeChild(document.getElementsByTagName('iframe')[0]);
+          while (document.body.childElementCount > 1) {
+            if (document.body.firstElementChild !== newFrame) {
+              document.body.removeChild(document.body.firstElementChild);
+            } else {
+              document.body.removeChild(document.body.children[1]);
+            }
           }
           newFrame.classList.remove('to');
           newFrame.classList.remove('above');

@@ -4,6 +4,8 @@
  * rewrites them to be navigation-transition friendly.
  */
 function gnc_on_load() {
+  window.removeEventListener('load', gnc_on_load);
+
   console.log('Rewriting links');
   var anchors = document.getElementsByTagName('a');
   for (var i = 0, iLen = anchors.length; i < iLen; i++) {
@@ -44,7 +46,7 @@ function gnc_on_load() {
       return function () {
         elem.styleData = this.responseText;
         if (--nRequests === 0) {
-          window.parent.postMessage({type: 'loaded'}, '*');
+          window.parent.postMessage({type: 'host-loaded'}, '*');
         }
       }
     }(link);
@@ -52,18 +54,18 @@ function gnc_on_load() {
   }
 
   if (nRequests === 0) {
-    window.parent.postMessage({type: 'loaded'}, '*');
+    window.parent.postMessage({type: 'host-loaded'}, '*');
   }
 }
 
 function gnc_navigate(url) {
   console.log('Client requesting navigation to ' + url);
-  window.parent.postMessage({type: 'navigate', url: url}, '*');
+  window.parent.postMessage({type: 'host-navigate', url: url}, '*');
 }
 
 function gnc_back() {
   console.log('Client requesting to go back');
-  window.parent.postMessage({type: 'back'}, '*');
+  window.parent.postMessage({type: 'host-back'}, '*');
 }
 
 function gnc_getDuration(timeText) {
@@ -209,11 +211,11 @@ window.addEventListener('message',
 
     var to = false;
     switch (e.data.type) {
-    case 'transition-to':
+    case 'client-transition-to':
       to = true;
-    case 'transition-from':
+    case 'client-transition-from':
       var duration = gnc_transition(e.data.name, e.data.backwards, to);
-      window.parent.postMessage({type: 'transition-start', duration: duration}, '*');
+      window.parent.postMessage({type: 'host-transition-start', duration: duration}, '*');
       break;
     }
   });
