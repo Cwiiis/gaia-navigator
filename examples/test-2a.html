@@ -56,7 +56,7 @@
                         (rect.right - rect.left) + '&' +
                         (rect.bottom - rect.top) + '&' +
                         this.style.backgroundColor;
-      gnc_navigate('test-2b.html?' + data_string);
+      gnc_getLocation().href = 'test-2b.html?' + data_string;
     }
 
     window.addEventListener('load',

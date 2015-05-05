@@ -9,6 +9,11 @@ Gaia Navigator is a partial implementation of a specification proposal, outlined
 * For reverse animations to work correctly, CSS property animation-delay must always be specified together with animation-duration.
 * Direct manipulation of the history and location objects will have unexpected results, instead use the shim objects available via gnc_getHistory and gnc_getLocation.
 
+## TODO
+
+* Support title tag in non-host documents
+* Support history pushState and replaceState
+
 ---
 
 # Navigation Transitions specification proposal

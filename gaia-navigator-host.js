@@ -55,7 +55,8 @@ function gnh_transition() {
   name = gnhBackwards ? 'transition-exit' : 'transition-enter';
   newWindow.postMessage({ type: 'client-transition-to',
                           name: name,
-                          backwards: gnhBackwards }, '*');
+                          backwards: gnhBackwards,
+                          historyLength: gnhNavHistory.urls.length }, '*');
   if (!gnhBackwards) {
     newFrame.classList.add('above');
   }
@@ -73,6 +74,17 @@ function gnh_normalise_url(url) {
   }
 
   return url;
+}
+
+function gnh_go(delta) {
+  var newPosition = gnhNavHistory.position + delta;
+  if (!delta || newPosition < 0 || newPosition >= gnhNavHistory.urls.length) {
+    return;
+  }
+
+  gnhBackwards = newPosition < gnhNavHistory.position;
+  gnhNavHistory.position = newPosition;
+  gnh_navigate(gnhNavHistory.urls[newPosition]);
 }
 
 window.addEventListener('message',
@@ -95,13 +107,8 @@ window.addEventListener('message',
       gnh_navigate(url);
       break;
 
-    case 'host-back':
-      if (gnhNavHistory.position < 1) {
-        break;
-      }
-
-      gnhBackwards = true;
-      gnh_navigate(gnhNavHistory.urls[--gnhNavHistory.position]);
+    case 'host-go':
+      gnh_go(e.data.delta);
       break;
 
     case 'host-loaded':

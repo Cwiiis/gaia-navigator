@@ -1,4 +1,6 @@
 
+var gncHistoryLength = 1;
+
 /**
  * Retrieves all anchor tags that point to a new url in the document and
  * rewrites them to be navigation-transition friendly.
@@ -18,7 +20,7 @@ function gnc_on_load() {
     a.addEventListener('click', function handleClick(url) {
         return function(e) {
           e.preventDefault();
-          gnc_navigate(url);
+          window.parent.postMessage({ type: 'host-navigate', url: url }, '*');
         }
       }(a.href));
     a.href = '';
@@ -46,7 +48,7 @@ function gnc_on_load() {
       return function () {
         elem.styleData = this.responseText;
         if (--nRequests === 0) {
-          window.parent.postMessage({type: 'host-loaded'}, '*');
+          window.parent.postMessage({ type: 'host-loaded' }, '*');
         }
       }
     }(link);
@@ -54,18 +56,8 @@ function gnc_on_load() {
   }
 
   if (nRequests === 0) {
-    window.parent.postMessage({type: 'host-loaded'}, '*');
+    window.parent.postMessage({ type: 'host-loaded' }, '*');
   }
-}
-
-function gnc_navigate(url) {
-  console.log('Client requesting navigation to ' + url);
-  window.parent.postMessage({type: 'host-navigate', url: url}, '*');
-}
-
-function gnc_back() {
-  console.log('Client requesting to go back');
-  window.parent.postMessage({type: 'host-back'}, '*');
 }
 
 function gnc_getDuration(timeText) {
@@ -212,7 +204,9 @@ function gnc_getLocation() {
           if (url.origin !== location.origin ||
               url.pathname !== location.pathname ||
               url.port !== location.port) {
-            gnc_navigate(url.href);
+            window.parent.postMessage({ type: 'host-navigate',
+                                        url: decodeURIComponent(url.href) },
+                                      '*');
             return;
           }
 
@@ -221,7 +215,7 @@ function gnc_getLocation() {
         break;
 
       case 'href':
-        Object.defineProperty(fakeLocation, 'href', {
+        Object.defineProperty(fakeLocation, property, {
           enumerable: true,
           get: function() { return location.href; },
           set: function(uri) { this.assign(uri); }
@@ -237,7 +231,45 @@ function gnc_getLocation() {
 }
 
 function gnc_getHistory() {
-  return history;
+  var fakeHistory = {};
+  for (property in history) {
+    switch (property) {
+      case 'length':
+        Object.defineProperty(fakeHistory, property, {
+          enumerable: true,
+          get: function() { return gncHistoryLength; }
+        });
+        break;
+
+      case 'go':
+        fakeHistory[property] = function(delta) {
+          if (!delta || delta === 0) {
+            gnc_getLocation().reload();
+            return;
+          }
+
+          window.parent.postMessage({ type: 'host-go', delta: delta }, '*');
+        };
+        break;
+
+      case 'back':
+        fakeHistory[property] = function() {
+          window.parent.postMessage({ type: 'host-go', delta: -1 }, '*');
+        };
+        break;
+
+      case 'forward':
+        fakeHistory[property] = function() {
+          window.parent.postMessage({ type: 'host-go', delta: 1 }, '*');
+        };
+        break;
+
+      default:
+        fakeHistory[property] = history[property];
+    }
+  }
+
+  return fakeHistory;
 }
 
 // Rewrite links on document load
@@ -251,6 +283,7 @@ window.addEventListener('message',
     switch (e.data.type) {
     case 'client-transition-to':
       to = true;
+      gncHistoryLength = e.data.historyLength;
     case 'client-transition-from':
       var duration = gnc_transition(e.data.name, e.data.backwards, to);
       window.parent.postMessage({type: 'host-transition-start', duration: duration}, '*');
