@@ -11,7 +11,6 @@ Gaia Navigator is a partial implementation of a specification proposal, outlined
 
 ## TODO
 
-* Support title tag in non-host documents
 * Support history pushState and replaceState
 * Support UA-initiated back/forward events?
 

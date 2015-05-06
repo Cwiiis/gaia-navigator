@@ -6,7 +6,7 @@ var gnhBackwards = false;
 
 // History tracking (TODO: Title tracking)
 var gnhNavHistory = {
-  urls: [],
+  entries: [],
   position: -1
 };
 
@@ -81,7 +81,7 @@ function gnh_transition() {
   newWindow.postMessage({ type: 'client-transition-to',
                           name: name,
                           backwards: gnhBackwards,
-                          historyLength: gnhNavHistory.urls.length }, '*');
+                          historyLength: gnhNavHistory.entries.length }, '*');
   if (!gnhBackwards) {
     newFrame.style.zIndex = '1';
   }
@@ -90,13 +90,14 @@ function gnh_transition() {
 // Implement history.go. Does nothing if given an out-of-range delta
 function gnh_go(delta) {
   var newPosition = gnhNavHistory.position + delta;
-  if (!delta || newPosition < 0 || newPosition >= gnhNavHistory.urls.length) {
+  if (!delta || newPosition < 0 ||
+      newPosition >= gnhNavHistory.entries.length) {
     return;
   }
 
   gnhBackwards = newPosition < gnhNavHistory.position;
   gnhNavHistory.position = newPosition;
-  gnh_navigate(gnhNavHistory.urls[newPosition]);
+  gnh_navigate(gnhNavHistory.entries[newPosition].url);
 }
 
 window.addEventListener('message',
@@ -109,10 +110,10 @@ window.addEventListener('message',
 
       // Alter history
       if (gnhNavHistory.position >= 0) {
-        gnhNavHistory.urls =
-          gnhNavHistory.urls.slice(0, gnhNavHistory.position + 1);
+        gnhNavHistory.entries =
+          gnhNavHistory.entries.slice(0, gnhNavHistory.position + 1);
       }
-      gnhNavHistory.urls.push(e.data.url);
+      gnhNavHistory.entries.push({ title: '', url: e.data.url });
       gnhNavHistory.position ++;
 
       gnh_navigate(e.data.url);
@@ -126,9 +127,12 @@ window.addEventListener('message',
       var iframes = document.getElementsByClassName('gaia-navigator-iframe');
       if (gnhNavHistory.position === -1) {
         var url = iframes.length ? iframes[0].src : location.href;
-        gnhNavHistory.urls.push(url);
+        gnhNavHistory.entries.push({ title: e.data.title, url: url });
         gnhNavHistory.position = 0;
+      } else {
+        gnhNavHistory.entries[gnhNavHistory.position].title = e.data.title;
       }
+      document.title = e.data.title;
 
       if (iframes.length) {
         gnh_transition();
@@ -215,7 +219,8 @@ window.addEventListener('load',
         return function () {
           elem.styleData = this.responseText;
           if (--nRequests === 0) {
-            window.parent.postMessage({ type: 'host-loaded' }, '*');
+            window.parent.postMessage({ type: 'host-loaded',
+                                        title: document.title }, '*');
           }
         }
       }(link);
@@ -223,7 +228,8 @@ window.addEventListener('load',
     }
 
     if (nRequests === 0) {
-      window.parent.postMessage({ type: 'host-loaded' }, '*');
+      window.parent.postMessage({ type: 'host-loaded',
+                                  title: document.title }, '*');
     }
   });
 
