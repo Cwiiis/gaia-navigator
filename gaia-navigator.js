@@ -130,8 +130,7 @@ window.addEventListener('message',
         gnhNavHistory.position = 0;
       }
 
-      if (iframes.length &&
-          iframes[iframes.length - 1].style.visibility === 'hidden') {
+      if (iframes.length) {
         gnh_transition();
       }
       break;
