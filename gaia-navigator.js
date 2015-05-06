@@ -142,7 +142,7 @@ window.addEventListener('message',
         // has started.
         var frames = document.getElementsByClassName('gaia-navigator-iframe');
         var newFrame = frames[frames.length - 1];
-        newFrame.style.visibility = '';
+        newFrame.style.visibility = 'visible';
 
         // Remove the old frame from the document after the transition finishes
         window.setTimeout(function() {
