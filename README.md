@@ -5,7 +5,7 @@ Gaia Navigator is a partial implementation of a specification proposal, outlined
 ## Limitations
 
 * A page must include [gaia-navigator.js](gaia-navigator.js). After the first navigation, each subsequent page will be wrapped in an iframe.
-* The first page must take care to remove event listeners that may continue to fire after navigation. To avoid this, a 'wrapper' page can be used. This page must contain a single iframe in the body of the document, with the style class 'gaia-navigator-iframe' and include [gaia-navigator.css](gaia-navigator.css). This iframe's source can be set to the page you would like to load initially.
+* The first page must take care to remove event listeners that may continue to fire after navigation. To avoid this, a 'wrapper' page can be used. This page must contain a single iframe in the body of the document, with the style class 'gaia-navigator-iframe' and include [gaia-navigator-wrapper.css](gaia-navigator-wrapper.css). This iframe's source can be set to the page you would like to load initially.
 * For reverse animations to work correctly, CSS property animation-delay must always be specified together with animation-duration.
 * Direct manipulation of the history and location objects will have unexpected results, instead use the shim objects available via gnc_getHistory and gnc_getLocation.
 
