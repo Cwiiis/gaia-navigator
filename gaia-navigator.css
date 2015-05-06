@@ -1,18 +1,9 @@
-iframe {
+iframe.gaia-navigator-iframe {
   position: fixed;
   top: 0;
   left: 0;
   border: 0;
   width: 100%;
   height: 100%;
-}
-
-iframe.above,
-body.above {
-  z-index: 1;
-}
-
-iframe.loading,
-body.loading {
   visibility: hidden;
 }
