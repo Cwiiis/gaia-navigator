@@ -156,7 +156,7 @@ window.addEventListener('message',
           newFrame.style.zIndex = '';
 
           // We are now a dedicated host, so disconnect the client.
-          window.postMessage({ type: 'client-disconnect' });
+          window.postMessage({ type: 'client-disconnect' }, '*');
         }, e.data.duration);
       });
       break;
@@ -378,6 +378,7 @@ function gnc_getLocation() {
             url.pathname =
               location.pathname.
                 slice(0, location.pathname.lastIndexOf('/') + 1) + uri;
+            url.search = '';
           }
 
           if (url.origin !== location.origin ||
