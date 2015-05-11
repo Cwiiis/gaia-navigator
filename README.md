@@ -11,8 +11,8 @@ Gaia Navigator is a partial implementation of a specification proposal, outlined
 
 ## TODO
 
-* Support history pushState and replaceState
-* Support UA-initiated back/forward events?
+* Support a preload spec
+* Update proposal based on external suggestions
 
 ---
 

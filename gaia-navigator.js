@@ -92,6 +92,17 @@ function gnh_transition() {
 
 window.addEventListener('popstate',
   function gnh_hostPopState(e) {
+    if (e.state && e.state.position === -1) {
+      // We've hit a user push/replace state, tell the client to fake a
+      // popstate event on the subframe
+      var frames = document.getElementsByClassName('gaia-navigator-iframe');
+      var target = frames.length ?
+        frames[frames.length - 1].contentWindow : window;
+      target.postMessage({ type: 'client-popstate',
+                           state: e.state.state }, '*');
+      return;
+    }
+
     var delta = (e.state ? e.state.position : 0) - gnhNavHistory.position;
     var newPosition = gnhNavHistory.position + delta;
 
@@ -127,6 +138,16 @@ window.addEventListener('message',
 
     case 'host-go':
       history.go(e.data.delta);
+      break;
+
+    case 'host-pushstate':
+      history.pushState(
+        { position: -1, state: e.data.state }, e.data.title, e.data.url);
+      break;
+
+    case 'host-replacestate':
+      history.replaceState(
+        { position: -1, state: e.data.state }, e.data.title, e.data.url);
       break;
 
     case 'host-loaded':
@@ -460,6 +481,24 @@ function gnc_getHistory() {
         };
         break;
 
+      case 'pushState':
+        fakeHistory[property] = function(state, title, url) {
+          window.parent.postMessage({ type: 'host-pushstate',
+                                      state: state,
+                                      title: title,
+                                      url: url }, '*');
+        };
+        break;
+
+      case 'replaceState':
+        fakeHistory[property] = function(state, title, url) {
+          window.parent.postMessage({ type: 'host-replacestate',
+                                      state: state,
+                                      title: title,
+                                      url: url }, '*');
+        };
+        break;
+
       default:
         fakeHistory[property] = history[property];
     }
@@ -484,6 +523,10 @@ window.addEventListener('message',
       break;
     case 'client-disconnect':
       window.removeEventListener('message', gnc_handleMessage);
+      break;
+    case 'client-popstate':
+      window.dispatchEvent(
+        new PopStateEvent('popstate', { state: e.data.state }));
       break;
     }
   });
