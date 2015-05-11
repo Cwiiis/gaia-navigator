@@ -1,5 +1,8 @@
 
-// Host code. Prefix: gnh
+/* Host code. Prefix: gnh
+ * Host code is essentially private, none of these functions should be called
+ * outside of this script.
+ */
 
 // Whether the current transition is going backwards
 var gnhBackwards = false;
@@ -87,18 +90,20 @@ function gnh_transition() {
   }
 }
 
-// Implement history.go. Does nothing if given an out-of-range delta
-function gnh_go(delta) {
-  var newPosition = gnhNavHistory.position + delta;
-  if (!delta || newPosition < 0 ||
-      newPosition >= gnhNavHistory.entries.length) {
-    return;
-  }
+window.addEventListener('popstate',
+  function gnh_hostPopState(e) {
+    var delta = (e.state ? e.state.position : 0) - gnhNavHistory.position;
+    var newPosition = gnhNavHistory.position + delta;
 
-  gnhBackwards = newPosition < gnhNavHistory.position;
-  gnhNavHistory.position = newPosition;
-  gnh_navigate(gnhNavHistory.entries[newPosition].url);
-}
+    if (!delta || newPosition < 0 ||
+        newPosition >= gnhNavHistory.entries.length) {
+      return;
+    }
+
+    gnhBackwards = newPosition < gnhNavHistory.position;
+    gnhNavHistory.position = newPosition;
+    gnh_navigate(gnhNavHistory.entries[newPosition].url);
+  });
 
 window.addEventListener('message',
   function gnh_hostMessageHandler(e) {
@@ -117,10 +122,11 @@ window.addEventListener('message',
       gnhNavHistory.position ++;
 
       gnh_navigate(e.data.url);
+      history.pushState({ position: gnhNavHistory.position }, '', e.data.url);
       break;
 
     case 'host-go':
-      gnh_go(e.data.delta);
+      history.go(e.data.delta);
       break;
 
     case 'host-loaded':
@@ -166,7 +172,9 @@ window.addEventListener('message',
     }
   });
 
-// Client code. Prefix: gnc
+/* Client code. Prefix: gnc
+ * Only gnc_get* functions should be called outside of this script.
+ */
 
 // History length, as sent by the host which keeps track of history.
 var gncHistoryLength = 1;
