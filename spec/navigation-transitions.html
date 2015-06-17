@@ -751,14 +751,15 @@ Parts of this work may be from another specification document.  If so, those par
      <ul class="toc">
       <li><a href="#use-cases"><span class="secno">1.1</span> <span class="content">Use cases</span></a>
      </ul>
-    <li><a href="#transition-definition"><span class="secno">2</span> <span class="content">Navigation transition definition: the <span class="property">navigation</span> at-rule</span></a>
+    <li><a href="#atnavigation-rule"><span class="secno">2</span> <span class="content">The <span>@navigation</span> rule</span></a>
      <ul class="toc">
-      <li><a href="#navigation-transition-name"><span class="secno">2.1</span> <span class="content">The <span class="property">navigation-transition-name</span> property</span></a>
-      <li><a href="#navigation-transition-type"><span class="secno">2.2</span> <span class="content">The <span class="property">navigation-transition-type</span> property</span></a>
-      <li><a href="#navigation-transition-duration"><span class="secno">2.3</span> <span class="content">The <span class="property">navigation-transition-duration</span> property</span></a>
-      <li><a href="#navigation-transition-start"><span class="secno">2.4</span> <span class="content">The <span class="property">navigation-transition-start</span> property</span></a>
-      <li><a href="#navigation-transition"><span class="secno">2.5</span> <span class="content">The <span class="property">navigation-transition</span> shorthand property</span></a>
-      <li><a href="#navigation-transition-z-index"><span class="secno">2.6</span> <span class="content">The <span class="property">navigation-transition-z-index</span> property</span></a>
+      <li><a href="#syntax"><span class="secno">2.1</span> <span class="content">Syntax</span></a>
+       <ul class="toc">
+        <li><a href="#navigation-transition-type"><span class="secno">2.1.1</span> <span class="content">navigation-transition-type</span></a>
+        <li><a href="#navigation-transition-duration"><span class="secno">2.1.2</span> <span class="content">navigation-transition-duration</span></a>
+        <li><a href="#navigation-transition-start"><span class="secno">2.1.3</span> <span class="content">navigation-transition-start</span></a>
+        <li><a href="#navigation-transition-z-index"><span class="secno">2.1.4</span> <span class="content">navigation-transition-z-index</span></a>
+       </ul>
      </ul>
     <li><a href="#starting"><span class="secno">3</span> <span class="content">Starting navigation transitions</span></a>
      <ul class="toc">
@@ -787,6 +788,9 @@ Conformance</span></a>
       <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
      </ul>
     <li><a href="#property-index"><span class="secno"></span> <span class="content">Property Index</span></a>
+     <ul class="toc">
+      <li><a href="#navigation-descriptor-table"><span class="secno"></span> <span class="content"><span>@navigation</span> Descriptors</span></a>
+     </ul>
     <li><a href="#idl-index"><span class="secno"></span> <span class="content">IDL Index</span></a>
    </ul></div>
 
@@ -816,20 +820,16 @@ Conformance</span></a>
      <p>A page may want to fade in on top of the previous page to make the navigation less jarring. The programming interface in this specification allows such an effect using just CSS on the destination page.</p>
      
 
-     <pre class="example lang-css" id="example-ccfa91e1"><a class="self-link" href="#example-ccfa91e1"></a>@navigation {
-  navigation-transition: nav-fade-in enter 0.5s;
-}
-
-@media nav-fade-in {
+     <pre class="example lang-css" id="example-5bc6c004"><a class="self-link" href="#example-5bc6c004"></a>@navigation enter 0.5s {
   html {
     background-color: transparent;
     animation: fade-in 0.5s;
   }
+}
 
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </pre>
      
@@ -843,19 +843,15 @@ Conformance</span></a>
      <p>A page may want to slide in from the right to give the user an idea of space when navigating a site.</p>
      
 
-     <pre class="example lang-css" id="example-70846537"><a class="self-link" href="#example-70846537"></a>@navigation {
-  navigation-transition: nav-slide-in enter 0.2s;
-}
-
-@media nav-slide-in {
+     <pre class="example lang-css" id="example-dcb62bb4"><a class="self-link" href="#example-dcb62bb4"></a>@navigation enter 0.2s {
   html {
     background-color: transparent;
     animation: slide-in 0.2s;
   }
+}
 
-  @keyframes slide-in {
-    from { transform: translateX(100%); }
-  }
+@keyframes slide-in {
+  from { transform: translateX(100%); }
 }
 </pre>
      
@@ -865,19 +861,15 @@ Conformance</span></a>
      <p>The previous page may want to slide away to the left during this transition, which can be done with an exit transition.</p>
      
 
-     <pre class="example lang-css" id="example-a00e9e05"><a class="self-link" href="#example-a00e9e05"></a>@navigation {
-  navigation-transition: nav-slide-out exit 0.2s;
-}
-
-@media nav-slide-out {
+     <pre class="example lang-css" id="example-cc55889d"><a class="self-link" href="#example-cc55889d"></a>@navigation exit 0.2s {
   html {
     background-color: transparent;
     animation: slide-out 0.2s;
   }
+}
 
-  @keyframes slide-out {
-    to { transform: translateX(-100%); }
-  }
+@keyframes slide-out {
+  to { transform: translateX(-100%); }
 }
 </pre>
      
@@ -891,18 +883,14 @@ Conformance</span></a>
      <p>A page may want to fade slightly to indicate to the user that it is not interactive while loading a new page.</p>
      
 
-     <pre class="example lang-css" id="example-74abf08b"><a class="self-link" href="#example-74abf08b"></a>@navigation {
-  navigation-transition: nav-fade exit 0.2s immediate;
-}
-
-@media nav-fade {
+     <pre class="example lang-css" id="example-dbbfed69"><a class="self-link" href="#example-dbbfed69"></a>@navigation exit 0.2s immediate {
   html {
     animation: fade 0.5s both;
   }
+}
 
-  @keyframes fade {
-    to { opacity: 0.3; }
-  }
+@keyframes fade {
+  to { opacity: 0.3; }
 }
 </pre>
      
@@ -913,115 +901,44 @@ Conformance</span></a>
 
 </dl>
 
-   <h2 class="heading settled" data-level="2" id="transition-definition"><span class="secno">2. </span><span class="content">Navigation transition definition: the <a class="property" data-link-type="propdesc">navigation</a> at-rule</span><a class="self-link" href="#transition-definition"></a></h2>
+   <h2 class="heading settled" data-level="2" id="atnavigation-rule"><span class="secno">2. </span><span class="content">The <dfn class="css" data-dfn-type="at-rule" data-export="" id="at-ruledef-navigation">@navigation<a class="self-link" href="#at-ruledef-navigation"></a></dfn> rule</span><a class="self-link" href="#atnavigation-rule"></a></h2>
 
 
-   <p>The <a class="property" data-link-type="propdesc">navigation</a> at-rule allows the properties of enter and exit transitions to be defined. Enter transitions apply to a page when it is being navigated to, exit transitions apply to a page when it is being navigated from. Only navigation transition properties are parsed inside a navigation at-rule, all other properties are ignored.</p>
+   <p>The <a class="css" data-link-type="maybe" href="#at-ruledef-navigation">@navigation</a> <a href="http://www.w3.org/TR/CSS21/syndata.html#at-rules">at-rule</a> consists of the @-keyword followed by any navigation transition properties and finally a block of style rules to apply during the defined navigation transition.</p>
 
 
-   <h3 class="heading settled" data-level="2.1" id="navigation-transition-name"><span class="secno">2.1. </span><span class="content">The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-name">navigation-transition-name</a> property</span><a class="self-link" href="#navigation-transition-name"></a></h3>
+   <h3 class="heading settled" data-level="2.1" id="syntax"><span class="secno">2.1. </span><span class="content">Syntax</span><a class="self-link" href="#syntax"></a></h3>
 
 
-   <p>The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-name">navigation-transition-name</a> property defines a list of transitions to apply. Each name is used to select the media at-rule that provides the style rules for the transition. If the name does not match any media at-rule, there is no transition to apply and a transition will not execute. Furthermore, if the transition name is <code>none</code> then there will be no transition.</p>
+   <p>The syntax for the <a class="css" data-link-type="maybe" href="#at-ruledef-navigation">@navigation</a> rule is as follows:</p>
 
 
-   <table class="definition propdef" data-link-for-hint="navigation-transition-name">
+   <p>navigation <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-type">navigation-transition-type</a> <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-duration">navigation-transition-duration</a> [ <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-start">navigation-transition-start</a> ] [ <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-z-index">navigation-transition-z-index</a> ]</p>
+
+
+   <h4 class="heading settled" data-level="2.1.1" id="navigation-transition-type"><span class="secno">2.1.1. </span><span class="content">navigation-transition-type</span><a class="self-link" href="#navigation-transition-type"></a></h4>
+
+
+   <table class="definition descdef">
     <tbody>
      <tr>
       <th>Name:
-      <td><dfn class="css" data-dfn-type="property" data-export="" id="propdef-navigation-transition-name">navigation-transition-name<a class="self-link" href="#propdef-navigation-transition-name"></a></dfn>
-     <tr class="value">
+      <td><dfn class="css" data-dfn-for="@navigation" data-dfn-type="descriptor" data-export="" id="descdef-navigation-navigation-transition-type">navigation-transition-type<a class="self-link" href="#descdef-navigation-navigation-transition-type"></a></dfn>
+     <tr>
+      <th>For:
+      <td><a class="css" data-link-type="at-rule" href="#at-ruledef-navigation">@navigation</a>
+     <tr>
       <th>Value:
-      <td class="prod"><a class="production css" data-link-type="type" href="#typedef-single-navigation-transition-name" title="Expands to: ">&lt;single-navigation-transition-name></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
+      <td class="prod"><a class="production css" data-link-type="type" href="#typedef-single-navigation-transition-type">&lt;single-navigation-transition-type></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
      <tr>
       <th>Initial:
-      <td>none
-     <tr>
-      <th>Applies to:
-      <td>all elements
-     <tr>
-      <th>Inherited:
-      <td>no
-     <tr>
-      <th>Percentages:
-      <td>n/a
-     <tr>
-      <th>Media:
-      <td>visual
-     <tr>
-      <th>Computed value:
-      <td>as specified
-     <tr>
-      <th>Animatable:
-      <td>no</table>
-
-
-   <p><dfn class="css" data-dfn-type="type" data-export="" id="typedef-single-navigation-transition-name">&lt;single-navigation-transition-name><a class="self-link" href="#typedef-single-navigation-transition-name"></a></dfn> = none | <a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#identifier-value" title="Expands to: ">&lt;custom-ident></a></p>
-
-
-   <p>The values of <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-name">navigation-transition-name</a> have the following meanings:</p>
-
-
-   <dl>
-  
-    <dt><dfn class="css" data-dfn-for="navigation-transition-name" data-dfn-type="value" data-export="" id="valdef-navigation-transition-name-none">none<a class="self-link" href="#valdef-navigation-transition-name-none"></a></dfn>
-  
-    <dd>
-    No transitions are specified at all, so there will be no navigation transition. Any other navigation transition properties specified for this transition have no effect.
-
-  
-    <dt><dfn class="css" data-dfn-for="navigation-transition-name" data-dfn-type="value" data-export="" id="valdef-navigation-transition-name-custom-ident"><a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#identifier-value" title="Expands to: ">&lt;custom-ident></a><a class="self-link" href="#valdef-navigation-transition-name-custom-ident"></a></dfn>
-  
-    <dd>
-    The transition will use the media at-rule associated with the name specified by <a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#identifier-value" title="Expands to: ">&lt;custom-ident></a>, if they exist. If no such media at-rule exists, there is no navigation transition.
-
-
-     <p>The <a href="http://www.w3.org/TR/css3-values/#common-keywords">CSS-wide keywords</a>, keywords defined by this property and keywords defined by the <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-type">navigation-transition-type</a> property are not valid transition names.</p>
-     
-</dl>
-
-
-   <h3 class="heading settled" data-level="2.2" id="navigation-transition-type"><span class="secno">2.2. </span><span class="content">The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-type">navigation-transition-type</a> property</span><a class="self-link" href="#navigation-transition-type"></a></h3>
-
-
-   <p>The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-type">navigation-transition-type</a> property determines what type of transition is being defined, either <a class="css" data-link-type="maybe" href="#valdef-navigation-transition-type-enter">enter</a> or <a class="css" data-link-type="maybe" href="#valdef-navigation-transition-type-exit">exit</a>.</p>
-
-
-   <table class="definition propdef" data-link-for-hint="navigation-transition-type">
-    <tbody>
-     <tr>
-      <th>Name:
-      <td><dfn class="css" data-dfn-type="property" data-export="" id="propdef-navigation-transition-type">navigation-transition-type<a class="self-link" href="#propdef-navigation-transition-type"></a></dfn>
-     <tr class="value">
-      <th>Value:
-      <td class="prod"><a class="production css" data-link-type="type" href="#typedef-single-navigation-transition-type" title="Expands to: ">&lt;single-navigation-transition-type></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
-     <tr>
-      <th>Initial:
-      <td>enter
-     <tr>
-      <th>Applies to:
-      <td>all elements
-     <tr>
-      <th>Inherited:
-      <td>no
-     <tr>
-      <th>Percentages:
-      <td>n/a
-     <tr>
-      <th>Media:
-      <td>visual
-     <tr>
-      <th>Computed value:
-      <td>as specified
-     <tr>
-      <th>Animatable:
-      <td>no</table>
+      <td>enter</table>
 
 
    <p><dfn class="css" data-dfn-type="type" data-export="" id="typedef-single-navigation-transition-type">&lt;single-navigation-transition-type><a class="self-link" href="#typedef-single-navigation-transition-type"></a></dfn> = enter | exit</p>
 
 
-   <p>The values of <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-type">navigation-transition-type</a> have the following meanings:</p>
+   <p>The values of <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-type">navigation-transition-type</a> have the following meanings:</p>
 
 
    <dl>
@@ -1039,41 +956,23 @@ Conformance</span></a>
 </dl>
 
 
-   <h3 class="heading settled" data-level="2.3" id="navigation-transition-duration"><span class="secno">2.3. </span><span class="content">The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-duration">navigation-transition-duration</a> property</span><a class="self-link" href="#navigation-transition-duration"></a></h3>
+   <h4 class="heading settled" data-level="2.1.2" id="navigation-transition-duration"><span class="secno">2.1.2. </span><span class="content">navigation-transition-duration</span><a class="self-link" href="#navigation-transition-duration"></a></h4>
 
 
-   <p>The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-duration">navigation-transition-duration</a> property defines the length of time that a navigation transition applies for.</p>
-
-
-   <table class="definition propdef" data-link-for-hint="navigation-transition-duration">
+   <table class="definition descdef">
     <tbody>
      <tr>
       <th>Name:
-      <td><dfn class="css" data-dfn-type="property" data-export="" id="propdef-navigation-transition-duration">navigation-transition-duration<a class="self-link" href="#propdef-navigation-transition-duration"></a></dfn>
-     <tr class="value">
+      <td><dfn class="css" data-dfn-for="@navigation" data-dfn-type="descriptor" data-export="" id="descdef-navigation-navigation-transition-duration">navigation-transition-duration<a class="self-link" href="#descdef-navigation-navigation-transition-duration"></a></dfn>
+     <tr>
+      <th>For:
+      <td><a class="css" data-link-type="at-rule" href="#at-ruledef-navigation">@navigation</a>
+     <tr>
       <th>Value:
-      <td class="prod"><a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#time-value" title="Expands to: ">&lt;time></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
+      <td class="prod"><a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#time-value">&lt;time></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
      <tr>
       <th>Initial:
-      <td><span class="css">0s</span>
-     <tr>
-      <th>Applies to:
-      <td>all elements
-     <tr>
-      <th>Inherited:
-      <td>no
-     <tr>
-      <th>Percentages:
-      <td>n/a
-     <tr>
-      <th>Media:
-      <td>visual
-     <tr>
-      <th>Computed value:
-      <td>as specified
-     <tr>
-      <th>Animatable:
-      <td>no</table>
+      <td>0s</table>
 
 
    <dl>
@@ -1084,49 +983,34 @@ Conformance</span></a>
     The <a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#time-value" title="Expands to: ">&lt;time></a> specifies the length of time that a navigation transition applies for. A negative <a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#time-value" title="Expands to: ">&lt;time></a> is invalid.
 
 
-     <p>If the <a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#time-value" title="Expands to: ">&lt;time></a> is <span class="css">0s</span>, like the initial value, the style of the transition will not be applied, but the transition itself still occurs instantaneously. Specifically, start and end events are fired.</p>
+     <p>If the <a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#time-value" title="Expands to: ">&lt;time></a> is <span class="css">0s</span>, the style of the transition will not be applied, but the transition itself still occurs instantaneously. Specifically, start and end events are fired.</p>
      
 </dl>
 
 
-   <h3 class="heading settled" data-level="2.4" id="navigation-transition-start"><span class="secno">2.4. </span><span class="content">The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-start">navigation-transition-start</a> property</span><a class="self-link" href="#navigation-transition-start"></a></h3>
+   <h4 class="heading settled" data-level="2.1.3" id="navigation-transition-start"><span class="secno">2.1.3. </span><span class="content">navigation-transition-start</span><a class="self-link" href="#navigation-transition-start"></a></h4>
 
 
-   <p>The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-start">navigation-transition-start</a> property describes when the navigation transition will start applying.</p>
-
-
-   <table class="definition propdef" data-link-for-hint="navigation-transition-start">
+   <table class="definition descdef">
     <tbody>
      <tr>
       <th>Name:
-      <td><dfn class="css" data-dfn-type="property" data-export="" id="propdef-navigation-transition-start">navigation-transition-start<a class="self-link" href="#propdef-navigation-transition-start"></a></dfn>
-     <tr class="value">
+      <td><dfn class="css" data-dfn-for="@navigation" data-dfn-type="descriptor" data-export="" id="descdef-navigation-navigation-transition-start">navigation-transition-start<a class="self-link" href="#descdef-navigation-navigation-transition-start"></a></dfn>
+     <tr>
+      <th>For:
+      <td><a class="css" data-link-type="at-rule" href="#at-ruledef-navigation">@navigation</a>
+     <tr>
       <th>Value:
-      <td class="prod"><a class="production css" data-link-type="type">&lt;single-navigation-transition-start></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
+      <td class="prod"><a class="production css" data-link-type="type" href="#typedef-single-navigation-transition-start" title="Expands to: immediate | on-load">&lt;single-navigation-transition-start></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
      <tr>
       <th>Initial:
-      <td>on-load
-     <tr>
-      <th>Applies to:
-      <td>all elements
-     <tr>
-      <th>Inherited:
-      <td>no
-     <tr>
-      <th>Percentages:
-      <td>n/a
-     <tr>
-      <th>Media:
-      <td>visual
-     <tr>
-      <th>Computed value:
-      <td>as specified
-     <tr>
-      <th>Animatable:
-      <td>no</table>
+      <td>on-load</table>
 
 
-   <p>The values of <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-start">navigation-transition-start</a> have the following meanings:</p>
+   <p><dfn class="css" data-dfn-type="type" data-export="" id="typedef-single-navigation-transition-start">&lt;single-navigation-transition-start><a class="self-link" href="#typedef-single-navigation-transition-start"></a></dfn> = on-load | immediate</p>
+
+
+   <p>The values of <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-start">navigation-transition-start</a> have the following meanings:</p>
 
 
    <dl>
@@ -1145,94 +1029,42 @@ Conformance</span></a>
 </dl>
 
 
-   <h3 class="heading settled" data-level="2.5" id="navigation-transition"><span class="secno">2.5. </span><span class="content">The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition">navigation-transition</a> shorthand property</span><a class="self-link" href="#navigation-transition"></a></h3>
+   <h4 class="heading settled" data-level="2.1.4" id="navigation-transition-z-index"><span class="secno">2.1.4. </span><span class="content">navigation-transition-z-index</span><a class="self-link" href="#navigation-transition-z-index"></a></h4>
 
 
-   <p>The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition">navigation-transition</a> shorthand property is a comma-separated list of navigation transition definitions. Each item in the list gives one item of the value for all of the subproperties of the shorthand, which are known as the navigation transition properties. When a property is not specified in its shorthand and not specified using a navigation transition property, it will take on its initial value.</p>
-
-
-   <table class="definition propdef" data-link-for-hint="navigation-transition">
+   <table class="definition descdef">
     <tbody>
      <tr>
       <th>Name:
-      <td><dfn class="css" data-dfn-type="property" data-export="" id="propdef-navigation-transition">navigation-transition<a class="self-link" href="#propdef-navigation-transition"></a></dfn>
-     <tr class="value">
+      <td><dfn class="css" data-dfn-for="@navigation" data-dfn-type="descriptor" data-export="" id="descdef-navigation-navigation-transition-z-index">navigation-transition-z-index<a class="self-link" href="#descdef-navigation-navigation-transition-z-index"></a></dfn>
+     <tr>
+      <th>For:
+      <td><a class="css" data-link-type="at-rule" href="#at-ruledef-navigation">@navigation</a>
+     <tr>
       <th>Value:
-      <td class="prod"><a class="production css" data-link-type="type" href="#typedef-single-navigation-transition" title="Expands to: ">&lt;single-navigation-transition></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
+      <td class="prod"><a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#integer-value">&lt;integer></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
      <tr>
       <th>Initial:
-      <td>see individual properties
-     <tr>
-      <th>Applies to:
-      <td>all elements
-     <tr>
-      <th>Inherited:
-      <td>no
-     <tr>
-      <th>Percentages:
-      <td>n/a
-     <tr>
-      <th>Media:
-      <td>visual
-     <tr>
-      <th>Computed value:
-      <td>as specified
-     <tr>
-      <th>Animatable:
-      <td>no</table>
+      <td>0</table>
 
 
-   <p><dfn class="css" data-dfn-type="type" data-export="" id="typedef-single-navigation-transition">&lt;single-navigation-transition><a class="self-link" href="#typedef-single-navigation-transition"></a></dfn> = <a class="production css" data-link-type="type" href="#typedef-single-navigation-transition-name" title="Expands to: ">&lt;single-navigation-transition-name></a> || <a class="production css" data-link-type="type" href="#typedef-single-navigation-transition-type" title="Expands to: ">&lt;single-navigation-transition-type></a> || <a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#time-value" title="Expands to: ">&lt;time></a> || <a class="production css" data-link-type="type">&lt;single-navigation-transition-start></a></p>
-
-
-   <p>Order is not important, as there are no duplicate or conflicting types.</p>
-
-
-   <h3 class="heading settled" data-level="2.6" id="navigation-transition-z-index"><span class="secno">2.6. </span><span class="content">The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-z-index">navigation-transition-z-index</a> property</span><a class="self-link" href="#navigation-transition-z-index"></a></h3>
-
-
-   <p>The <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-z-index">navigation-transition-z-index</a> property assigns the page a z-ordering priority for when transitions on two pages happen simultaneously.</p>
-
-
-   <table class="definition propdef" data-link-for-hint="navigation-transition-z-index">
-    <tbody>
-     <tr>
-      <th>Name:
-      <td><dfn class="css" data-dfn-type="property" data-export="" id="propdef-navigation-transition-z-index">navigation-transition-z-index<a class="self-link" href="#propdef-navigation-transition-z-index"></a></dfn>
-     <tr class="value">
-      <th>Value:
-      <td class="prod"><a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#integer-value" title="Expands to: ">&lt;integer></a><a data-link-type="grammar" href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
-     <tr>
-      <th>Initial:
-      <td>0
-     <tr>
-      <th>Applies to:
-      <td>all elements
-     <tr>
-      <th>Inherited:
-      <td>no
-     <tr>
-      <th>Percentages:
-      <td>n/a
-     <tr>
-      <th>Media:
-      <td>visual
-     <tr>
-      <th>Computed value:
-      <td>as specified
-     <tr>
-      <th>Animatable:
-      <td>no</table>
+   <dl>
+  
+    <dt><dfn class="css" data-dfn-for="navigation-transition-z-index" data-dfn-type="value" data-export="" id="valdef-navigation-transition-z-index-integer"><a class="production css" data-link-type="type" href="http://dev.w3.org/csswg/css-values-3/#integer-value" title="Expands to: ">&lt;integer></a><a class="self-link" href="#valdef-navigation-transition-z-index-integer"></a></dfn>
+  
+    <dd>
+    Assigns the page a z-ordering priority for when transitions on two pages happen simultaneously.
+</dl>
 
 
 
    <h2 class="heading settled" data-level="3" id="starting"><span class="secno">3. </span><span class="content">Starting navigation transitions</span><a class="self-link" href="#starting"></a></h2>
 
 
-   <p>Navigation transitions can start either immediately, or after the window has emitted the <code>load</code> event associated with the page, as specified by the <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-start">navigation-transition-start</a> property. If a page has no navigation transition specified and a page is navigated to that has navigation transitions, it will remain on screen for the duration of the longest transition specified on the transitioning page. During transitions, a page will remain in the window and its specified media at-rule will apply. The page that is being navigated to will be drawn on top of the page being navigated from, unless otherwise specified by the <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-z-index">navigation-transition-z-index</a> property.</p>
+   <p>Navigation transitions can start either immediately, or after the window has emitted the <code>load</code> event associated with the page, as specified by the <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-start">navigation-transition-start</a> property. If a page has no navigation transition specified and a page is navigated to that has navigation transitions, it will remain on screen for the duration of the longest transition specified on the transitioning page. During transitions, a page will remain in the window and its specified media at-rule will apply. The page that is being navigated to will be drawn on top of the page being navigated from, unless otherwise specified by the <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-z-index">navigation-transition-z-index</a> property.</p>
 
 
-   <p>A navigation’s media at rule will apply for the specified duration of the navigation transition. Once that duration has elapsed, the media at rule will no longer apply. If all navigation transition durations have elapsed and the page is being navigated from, the page will unload, similarly to if no navigation transition had been specified and the page had been navigated from.</p>
+   <p>A navigation’s at rule will apply for the specified duration of the navigation transition. Once that duration has elapsed, the style block associated with the at-rule will no longer apply. If all navigation transition durations have elapsed and the page is being navigated from, the page will unload, similarly to if no navigation transition had been specified and the page had been navigated from.</p>
 
 
    <h3 class="heading settled" data-level="3.1" id="multiple-transitions"><span class="secno">3.1. </span><span class="content">Multiple navigation transitions</span><a class="self-link" href="#multiple-transitions"></a></h3>
@@ -1244,20 +1076,20 @@ Conformance</span></a>
    <h3 class="heading settled" data-level="3.2" id="navigating-backwards"><span class="secno">3.2. </span><span class="content">Navigating backwards</span><a class="self-link" href="#navigating-backwards"></a></h3>
 
 
-   <p>When navigating backwards, animations are also run backwards, as specified in the <a href="http://w3c.github.io/web-animations/#reverse-an-animation">Web Animations</a> specification. In addition, the page being navigated backwards to will be drawn underneath the page being navigated from, unless otherwise specified by the <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-z-index">navigation-transition-z-index</a> property.</p>
+   <p>When navigating backwards, animations are also run backwards, as specified in the <a href="http://w3c.github.io/web-animations/#reverse-an-animation">Web Animations</a> specification. In addition, the page being navigated backwards to will be drawn underneath the page being navigated from, unless otherwise specified by the <a class="property" data-link-type="propdesc" href="#descdef-navigation-navigation-transition-z-index">navigation-transition-z-index</a> property.</p>
 
 
    <h3 class="heading settled" data-level="3.3" id="interrupting-transitions"><span class="secno">3.3. </span><span class="content">Interrupting a navigation transition</span><a class="self-link" href="#interrupting-transitions"></a></h3>
 
 
-   <p>If the user agent needs to interrupt a navigation transition, for example, due to the user interrupting the page loading by navigating elsewhere, or by stopping transfers, all navigation transitions style rules will immediately stop applying.</p>
+   <p>If the user agent needs to interrupt a navigation transition, for example, due to the user interrupting the page loading by navigating elsewhere, or by stopping transfers, all navigation transitions style rules will immediately stop applying. The <span class="css">navigationtransitionend</span> event will be emitted if any transitions were interrupted.</p>
 
 
 
    <h2 class="heading settled" data-level="4" id="navigation-transition-events"><span class="secno">4. </span><span class="content">Navigation transition events</span><a class="self-link" href="#navigation-transition-events"></a></h2>
 
 
-   <p>Navigation transition-related events are available through the DOM Event system. The start and end of a navigation transition generate DOM events. A page can have multiple navigation transitions operating simultaneously. Each <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-name">navigation-transition-name</a> specifies a single transition and will generate a separate pairing of events.</p>
+   <p>Navigation transition-related events are available through the DOM Event system. The start and end of a navigation transition generates DOM events. A page can have multiple navigation transitions operating simultaneously. One <span class="css">navigationtransitionstart</span> event will be emitted when the first navigation transition starts, and one <span class="css">navigationtransitionend</span> event will be emitted when the last navigation transition ends.</p>
 
 
    <h3 class="heading settled" data-level="4.1" id="interface-navigation-transition-event"><span class="secno">4.1. </span><span class="content">The <code>NavigationTransitionEvent</code> interface</span><a class="self-link" href="#interface-navigation-transition-event"></a></h3>
@@ -1271,14 +1103,10 @@ Conformance</span></a>
 
    <pre class="idl">[<dfn class="idl-code" data-dfn-for="NavigationTransitionEvent" data-dfn-type="constructor" data-export="" data-lt="NavigationTransitionEvent(type, navigationTransitionEventInitDict)" id="dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict">Constructor<a class="self-link" href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict"></a></dfn>(DOMString <dfn class="idl-code" data-dfn-for="NavigationTransitionEvent/NavigationTransitionEvent(type, navigationTransitionEventInitDict)" data-dfn-type="argument" data-export="" id="dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict-type">type<a class="self-link" href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict-type"></a></dfn>, optional <a data-link-type="idl-name" href="#dictdef-navigationtransitioneventinit">NavigationTransitionEventInit</a> <dfn class="idl-code" data-dfn-for="NavigationTransitionEvent/NavigationTransitionEvent(type, navigationTransitionEventInitDict)" data-dfn-type="argument" data-export="" id="dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict-navigationtransitioneventinitdict">navigationTransitionEventInitDict<a class="self-link" href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict-navigationtransitioneventinitdict"></a></dfn>)]
 interface <dfn class="idl-code" data-dfn-type="interface" data-export="" id="navigationtransitionevent">NavigationTransitionEvent<a class="self-link" href="#navigationtransitionevent"></a></dfn> : <a data-link-type="idl-name" href="http://dom.spec.whatwg.org/#event">Event</a> {
-  readonly attribute DOMString <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString " href="#dom-navigationtransitionevent-navigationtransitionname">navigationTransitionName</a>;
   readonly attribute DOMString <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString " href="#dom-navigationtransitionevent-navigationtransitiontype">navigationTransitionType</a>;
-  readonly attribute float <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="float " href="#dom-navigationtransitionevent-navigationtransitionduration">navigationTransitionDuration</a>;
 };
 dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-navigationtransitioneventinit">NavigationTransitionEventInit<a class="self-link" href="#dictdef-navigationtransitioneventinit"></a></dfn> : <a data-link-type="idl-name" href="http://dom.spec.whatwg.org/#dictdef-eventinit">EventInit</a> {
-  DOMString <dfn class="idl-code" data-default="&quot;&quot;" data-dfn-for="NavigationTransitionEventInit" data-dfn-type="dict-member" data-export="" data-type="DOMString " id="dom-navigationtransitioneventinit-navigationtransitionname">navigationTransitionName<a class="self-link" href="#dom-navigationtransitioneventinit-navigationtransitionname"></a></dfn> = "";
   DOMString <dfn class="idl-code" data-default="&quot;enter&quot;" data-dfn-for="NavigationTransitionEventInit" data-dfn-type="dict-member" data-export="" data-type="DOMString " id="dom-navigationtransitioneventinit-navigationtransitiontype">navigationTransitionType<a class="self-link" href="#dom-navigationtransitioneventinit-navigationtransitiontype"></a></dfn> = "enter";
-  float <dfn class="idl-code" data-default="0.0" data-dfn-for="NavigationTransitionEventInit" data-dfn-type="dict-member" data-export="" data-type="float " id="dom-navigationtransitioneventinit-navigationtransitionduration">navigationTransitionDuration<a class="self-link" href="#dom-navigationtransitioneventinit-navigationtransitionduration"></a></dfn> = 0.0;
 };
 </pre>
 
@@ -1288,22 +1116,10 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
 
    <dl>
   
-    <dt><dfn class="idl-code" data-dfn-for="NavigationTransitionEvent" data-dfn-type="attribute" data-export="" id="dom-navigationtransitionevent-navigationtransitionname">navigationTransitionName<a class="self-link" href="#dom-navigationtransitionevent-navigationtransitionname"></a></dfn>, of type , <span> of type <a data-link-type="idl-name" href="http://heycam.github.io/webidl/#idl-DOMString">DOMString</a>, readonly</span><a class="idl-code" data-link-type="interface" href="http://heycam.github.io/webidl/#idl-DOMString">DOMString</a>, readonly
-  
-    <dd>
-    The value of the <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-name">navigation-transition-name</a> property of the navigation transition that fired the event.
-
-  
     <dt><dfn class="idl-code" data-dfn-for="NavigationTransitionEvent" data-dfn-type="attribute" data-export="" id="dom-navigationtransitionevent-navigationtransitiontype">navigationTransitionType<a class="self-link" href="#dom-navigationtransitionevent-navigationtransitiontype"></a></dfn>, of type , <span> of type <a data-link-type="idl-name" href="http://heycam.github.io/webidl/#idl-DOMString">DOMString</a>, readonly</span><a class="idl-code" data-link-type="interface" href="http://heycam.github.io/webidl/#idl-DOMString">DOMString</a>, readonly
   
     <dd>
     A string representing the type of navigation transition. Can take one of four values; <a class="css" data-link-type="maybe" href="#valdef-navigation-transition-type-enter">enter</a>, <span class="css">enter-back</span>, <a class="css" data-link-type="maybe" href="#valdef-navigation-transition-type-exit">exit</a> or <span class="css">exit-back</span>.
-
-  
-    <dt><dfn class="idl-code" data-dfn-for="NavigationTransitionEvent" data-dfn-type="attribute" data-export="" id="dom-navigationtransitionevent-navigationtransitionduration">navigationTransitionDuration<a class="self-link" href="#dom-navigationtransitionevent-navigationtransitionduration"></a></dfn>, of type float, readonly
-  , <span> of type <a data-link-type="idl-name">float</a>, readonly</span>
-    <dd>
-    The amount of time the navigation transition will apply for, as determined by the transition’s <a class="property" data-link-type="propdesc" href="#propdef-navigation-transition-duration">navigation-transition-duration</a> property.
 </dl>
 
 
@@ -1318,7 +1134,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
     <dt><dfn class="idl-code" data-dfn-for="NavigationTransitionEvent" data-dfn-type="event" data-export="" id="dom-navigationtransitionevent-navigationtransitionstart">navigationtransitionstart<a class="self-link" href="#dom-navigationtransitionevent-navigationtransitionstart"></a></dfn>
   
     <dd>
-    The <a data-link-type="idl" href="#dom-navigationtransitionevent-navigationtransitionstart">navigationtransitionstart</a> event occurs at the start of the transition.
+    The <a data-link-type="idl" href="#dom-navigationtransitionevent-navigationtransitionstart">navigationtransitionstart</a> event occurs at the start of the first transition.
     
      <ul>
       
@@ -1328,7 +1144,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
       <li>Cancelable: No
       
       
-      <li>Context Info: navigationTransitionName, navigationTransitionType, navigationTransitionDuration
+      <li>Context Info: navigationTransitionType
       
     
      </ul>
@@ -1338,7 +1154,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
     <dt><dfn class="idl-code" data-dfn-for="NavigationTransitionEvent" data-dfn-type="event" data-export="" id="dom-navigationtransitionevent-navigationtransitionend">navigationtransitionend<a class="self-link" href="#dom-navigationtransitionevent-navigationtransitionend"></a></dfn>
   
     <dd>
-    The <a data-link-type="idl" href="#dom-navigationtransitionevent-navigationtransitionend">navigationtransitionend</a> event occurs at the end of the transition.
+    The <a data-link-type="idl" href="#dom-navigationtransitionevent-navigationtransitionend">navigationtransitionend</a> event occurs at the end of the last transition.
     
      <ul>
       
@@ -1348,7 +1164,7 @@ dictionary <dfn class="idl-code" data-dfn-type="dictionary" data-export="" id="d
       <li>Cancelable: No
       
       
-      <li>Context Info: navigationTransitionName, navigationTransitionType, navigationTransitionDuration
+      <li>Context Info: navigationTransitionType
       
     
      </ul>
@@ -1399,43 +1215,30 @@ Conformance</span><a class="self-link" href="#conformance"></a></h2>
   <h2 class="no-num heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="indexlist">
-   <li>&lt;custom-ident>, <a href="#valdef-navigation-transition-name-custom-ident">2.1</a>
-   <li>enter, <a href="#valdef-navigation-transition-type-enter">2.2</a>
-   <li>exit, <a href="#valdef-navigation-transition-type-exit">2.2</a>
-   <li>immediate, <a href="#valdef-navigation-transition-start-immediate">2.4</a>
-   <li>navigation-transition, <a href="#propdef-navigation-transition">2.5</a>
-   <li>navigation-transition-duration, <a href="#propdef-navigation-transition-duration">2.3</a>
-   <li>navigationTransitionDuration
-    <ul>
-     <li>dict-member for NavigationTransitionEventInit, <a href="#dom-navigationtransitioneventinit-navigationtransitionduration">4.1.1</a>
-     <li>attribute for NavigationTransitionEvent, <a href="#dom-navigationtransitionevent-navigationtransitionduration">4.1.2</a>
-    </ul>
+   <li>enter, <a href="#valdef-navigation-transition-type-enter">2.1.1</a>
+   <li>exit, <a href="#valdef-navigation-transition-type-exit">2.1.1</a>
+   <li>immediate, <a href="#valdef-navigation-transition-start-immediate">2.1.3</a>
+   <li>&lt;integer>, <a href="#valdef-navigation-transition-z-index-integer">2.1.4</a>
+   <li>@navigation, <a href="#at-ruledef-navigation">2</a>
+   <li>navigation-transition-duration, <a href="#descdef-navigation-navigation-transition-duration">2.1.2</a>
    <li>navigationtransitionend, <a href="#dom-navigationtransitionevent-navigationtransitionend">4.2</a>
    <li>NavigationTransitionEvent, <a href="#navigationtransitionevent">4.1.1</a>
    <li>NavigationTransitionEventInit, <a href="#dictdef-navigationtransitioneventinit">4.1.1</a>
    <li>navigationTransitionEventInitDict, <a href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict-navigationtransitioneventinitdict">4.1.1</a>
    <li>NavigationTransitionEvent(type, navigationTransitionEventInitDict), <a href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict">4.1.1</a>
-   <li>navigationTransitionName
-    <ul>
-     <li>dict-member for NavigationTransitionEventInit, <a href="#dom-navigationtransitioneventinit-navigationtransitionname">4.1.1</a>
-     <li>attribute for NavigationTransitionEvent, <a href="#dom-navigationtransitionevent-navigationtransitionname">4.1.2</a>
-    </ul>
-   <li>navigation-transition-name, <a href="#propdef-navigation-transition-name">2.1</a>
    <li>navigationtransitionstart, <a href="#dom-navigationtransitionevent-navigationtransitionstart">4.2</a>
-   <li>navigation-transition-start, <a href="#propdef-navigation-transition-start">2.4</a>
-   <li>navigation-transition-type, <a href="#propdef-navigation-transition-type">2.2</a>
+   <li>navigation-transition-start, <a href="#descdef-navigation-navigation-transition-start">2.1.3</a>
    <li>navigationTransitionType
     <ul>
      <li>dict-member for NavigationTransitionEventInit, <a href="#dom-navigationtransitioneventinit-navigationtransitiontype">4.1.1</a>
      <li>attribute for NavigationTransitionEvent, <a href="#dom-navigationtransitionevent-navigationtransitiontype">4.1.2</a>
     </ul>
-   <li>navigation-transition-z-index, <a href="#propdef-navigation-transition-z-index">2.6</a>
-   <li>none, <a href="#valdef-navigation-transition-name-none">2.1</a>
-   <li>on-load, <a href="#valdef-navigation-transition-start-on-load">2.4</a>
-   <li>&lt;single-navigation-transition>, <a href="#typedef-single-navigation-transition">2.5</a>
-   <li>&lt;single-navigation-transition-name>, <a href="#typedef-single-navigation-transition-name">2.1</a>
-   <li>&lt;single-navigation-transition-type>, <a href="#typedef-single-navigation-transition-type">2.2</a>
-   <li>&lt;time>, <a href="#valdef-navigation-transition-duration-time">2.3</a>
+   <li>navigation-transition-type, <a href="#descdef-navigation-navigation-transition-type">2.1.1</a>
+   <li>navigation-transition-z-index, <a href="#descdef-navigation-navigation-transition-z-index">2.1.4</a>
+   <li>on-load, <a href="#valdef-navigation-transition-start-on-load">2.1.3</a>
+   <li>&lt;single-navigation-transition-start>, <a href="#typedef-single-navigation-transition-start">2.1.3</a>
+   <li>&lt;single-navigation-transition-type>, <a href="#typedef-single-navigation-transition-type">2.1.1</a>
+   <li>&lt;time>, <a href="#valdef-navigation-transition-duration-time">2.1.2</a>
    <li>type, <a href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict-type">4.1.1</a>
   </ul>
   <h3 class="no-num heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
@@ -1443,7 +1246,6 @@ Conformance</span><a class="self-link" href="#conformance"></a></h2>
    <li><a data-link-type="biblio" href="#biblio-css-values-3">[css-values-3]</a> defines the following terms:
     <ul>
      <li><a href="http://dev.w3.org/csswg/css-values-3/#mult-comma">#</a>
-     <li><a href="http://dev.w3.org/csswg/css-values-3/#identifier-value">&lt;custom-ident></a>
      <li><a href="http://dev.w3.org/csswg/css-values-3/#integer-value">&lt;integer></a>
      <li><a href="http://dev.w3.org/csswg/css-values-3/#time-value">&lt;time></a>
     </ul>
@@ -1470,91 +1272,39 @@ Conformance</span><a class="self-link" href="#conformance"></a></h2>
    <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
   </dl>
   <h2 class="no-num heading settled" id="property-index"><span class="content">Property Index</span><a class="self-link" href="#property-index"></a></h2>
+  <p>No properties defined.</p>
+  <h3 class="no-num heading settled" id="navigation-descriptor-table"><span class="content"><a class="css" data-link-type="at-rule" href="#at-ruledef-navigation">@navigation</a> Descriptors</span><a class="self-link" href="#navigation-descriptor-table"></a></h3>
   <table class="proptable data">
    <thead>
     <tr>
      <th scope="col">Name
      <th scope="col">Value
      <th scope="col">Initial
-     <th scope="col">Applies to
-     <th scope="col">Inh.
-     <th scope="col">%ages
-     <th scope="col">Media
-     <th scope="col">Animatable
-     <th scope="col">Computed value
    <tbody>
-    <tr>
-     <th scope="row"><a class="css" data-link-type="property" href="#propdef-navigation-transition-name">navigation-transition-name</a>
-     <td>&lt;single-navigation-transition-name>#
-     <td>none
-     <td>all elements
-     <td>no
-     <td>n/a
-     <td>visual
-     <td>no
-     <td>as specified
-    <tr>
-     <th scope="row"><a class="css" data-link-type="property" href="#propdef-navigation-transition-type">navigation-transition-type</a>
-     <td>&lt;single-navigation-transition-type>#
-     <td>enter
-     <td>all elements
-     <td>no
-     <td>n/a
-     <td>visual
-     <td>no
-     <td>as specified
-    <tr>
-     <th scope="row"><a class="css" data-link-type="property" href="#propdef-navigation-transition-duration">navigation-transition-duration</a>
-     <td>&lt;time>#
-     <td>0s
-     <td>all elements
-     <td>no
-     <td>n/a
-     <td>visual
-     <td>no
-     <td>as specified
-    <tr>
-     <th scope="row"><a class="css" data-link-type="property" href="#propdef-navigation-transition-start">navigation-transition-start</a>
-     <td>&lt;single-navigation-transition-start>#
-     <td>on-load
-     <td>all elements
-     <td>no
-     <td>n/a
-     <td>visual
-     <td>no
-     <td>as specified
-    <tr>
-     <th scope="row"><a class="css" data-link-type="property" href="#propdef-navigation-transition">navigation-transition</a>
-     <td>&lt;single-navigation-transition>#
-     <td>see individual properties
-     <td>all elements
-     <td>no
-     <td>n/a
-     <td>visual
-     <td>no
-     <td>as specified
-    <tr>
-     <th scope="row"><a class="css" data-link-type="property" href="#propdef-navigation-transition-z-index">navigation-transition-z-index</a>
-     <td>&lt;integer>#
-     <td>0
-     <td>all elements
-     <td>no
-     <td>n/a
-     <td>visual
-     <td>no
-     <td>as specified
+   <tr>
+    <th scope="row"><a class="css" data-link-type="descriptor" href="#descdef-navigation-navigation-transition-type">navigation-transition-type</a>
+    <td>&lt;single-navigation-transition-type>#
+    <td>enter
+   <tr>
+    <th scope="row"><a class="css" data-link-type="descriptor" href="#descdef-navigation-navigation-transition-duration">navigation-transition-duration</a>
+    <td>&lt;time>#
+    <td>0s
+   <tr>
+    <th scope="row"><a class="css" data-link-type="descriptor" href="#descdef-navigation-navigation-transition-start">navigation-transition-start</a>
+    <td>&lt;single-navigation-transition-start>#
+    <td>on-load
+   <tr>
+    <th scope="row"><a class="css" data-link-type="descriptor" href="#descdef-navigation-navigation-transition-z-index">navigation-transition-z-index</a>
+    <td>&lt;integer>#
+    <td>0
   </table>
   <h2 class="no-num heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
   <pre class="idl">[<a href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict">Constructor</a>(DOMString <a href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict-type">type</a>, optional <a data-link-type="idl-name" href="#dictdef-navigationtransitioneventinit">NavigationTransitionEventInit</a> <a href="#dom-navigationtransitionevent-navigationtransitioneventtype-navigationtransitioneventinitdict-navigationtransitioneventinitdict">navigationTransitionEventInitDict</a>)]
 interface <a href="#navigationtransitionevent">NavigationTransitionEvent</a> : <a data-link-type="idl-name" href="http://dom.spec.whatwg.org/#event">Event</a> {
-  readonly attribute DOMString <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString " href="#dom-navigationtransitionevent-navigationtransitionname">navigationTransitionName</a>;
   readonly attribute DOMString <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString " href="#dom-navigationtransitionevent-navigationtransitiontype">navigationTransitionType</a>;
-  readonly attribute float <a class="idl-code" data-link-type="attribute" data-readonly="" data-type="float " href="#dom-navigationtransitionevent-navigationtransitionduration">navigationTransitionDuration</a>;
 };
 dictionary <a href="#dictdef-navigationtransitioneventinit">NavigationTransitionEventInit</a> : <a data-link-type="idl-name" href="http://dom.spec.whatwg.org/#dictdef-eventinit">EventInit</a> {
-  DOMString <a data-default="&quot;&quot;" data-type="DOMString " href="#dom-navigationtransitioneventinit-navigationtransitionname">navigationTransitionName</a> = "";
   DOMString <a data-default="&quot;enter&quot;" data-type="DOMString " href="#dom-navigationtransitioneventinit-navigationtransitiontype">navigationTransitionType</a> = "enter";
-  float <a data-default="0.0" data-type="float " href="#dom-navigationtransitioneventinit-navigationtransitionduration">navigationTransitionDuration</a> = 0.0;
 };
 
 </pre>

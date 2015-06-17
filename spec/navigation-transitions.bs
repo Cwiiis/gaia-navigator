@@ -21,120 +21,81 @@ The use cases for the specification include the following:
 : Cross-fading a new page on load
 :: A page may want to fade in on top of the previous page to make the navigation less jarring. The programming interface in this specification allows such an effect using just CSS on the destination page.
 <pre class='example lang-css'>
-@navigation {
-  navigation-transition: nav-fade-in enter 0.5s;
-}
-
-@media nav-fade-in {
+@navigation enter 0.5s {
   html {
     background-color: transparent;
     animation: fade-in 0.5s;
   }
+}
 
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 </pre>
 
 : Sliding a new page in from the right
 :: A page may want to slide in from the right to give the user an idea of space when navigating a site.
 <pre class='example lang-css'>
-@navigation {
-  navigation-transition: nav-slide-in enter 0.2s;
-}
-
-@media nav-slide-in {
+@navigation enter 0.2s {
   html {
     background-color: transparent;
     animation: slide-in 0.2s;
   }
+}
 
-  @keyframes slide-in {
-    from { transform: translateX(100%); }
-  }
+@keyframes slide-in {
+  from { transform: translateX(100%); }
 }
 </pre>
 
 :: The previous page may want to slide away to the left during this transition, which can be done with an exit transition.
 <pre class='example lang-css'>
-@navigation {
-  navigation-transition: nav-slide-out exit 0.2s;
-}
-
-@media nav-slide-out {
+@navigation exit 0.2s {
   html {
     background-color: transparent;
     animation: slide-out 0.2s;
   }
+}
 
-  @keyframes slide-out {
-    to { transform: translateX(-100%); }
-  }
+@keyframes slide-out {
+  to { transform: translateX(-100%); }
 }
 </pre>
 
 : Fading a page while loading
 :: A page may want to fade slightly to indicate to the user that it is not interactive while loading a new page.
 <pre class='example lang-css'>
-@navigation {
-  navigation-transition: nav-fade exit 0.2s immediate;
-}
-
-@media nav-fade {
+@navigation exit 0.2s immediate {
   html {
     animation: fade 0.5s both;
   }
+}
 
-  @keyframes fade {
-    to { opacity: 0.3; }
-  }
+@keyframes fade {
+  to { opacity: 0.3; }
 }
 </pre>
 :: The destination page could also fade in to complete the effect.
 
 
-<h2 id="transition-definition">Navigation transition definition: the 'navigation' at-rule</h2>
+<h2 id="atnavigation-rule">The <dfn at-rule>@navigation</dfn> rule</h2>
 
-The 'navigation' at-rule allows the properties of enter and exit transitions to be defined. Enter transitions apply to a page when it is being navigated to, exit transitions apply to a page when it is being navigated from. Only navigation transition properties are parsed inside a navigation at-rule, all other properties are ignored.
+The ''@navigation'' <a href="http://www.w3.org/TR/CSS21/syndata.html#at-rules">at-rule</a> consists of the @-keyword followed by any navigation transition properties and finally a block of style rules to apply during the defined navigation transition.
 
-<h3 id="navigation-transition-name">The 'navigation-transition-name' property</h3>
+<h3 id="syntax">Syntax</h3>
 
-The 'navigation-transition-name' property defines a list of transitions to apply. Each name is used to select the media at-rule that provides the style rules for the transition. If the name does not match any media at-rule, there is no transition to apply and a transition will not execute. Furthermore, if the transition name is <code>none</code> then there will be no transition.
+The syntax for the ''@navigation'' rule is as follows:
 
-<pre class='propdef'>
-Name: navigation-transition-name
-Value: <<single-navigation-transition-name>>#
-Initial: none
-Inherited: no
-</pre>
+navigation 'navigation-transition-type' 'navigation-transition-duration' [ 'navigation-transition-start' ] [ 'navigation-transition-z-index' ]
 
-<dfn>&lt;single-navigation-transition-name></dfn> = none | <<custom-ident>>
+<h4 id="navigation-transition-type">navigation-transition-type</h4>
 
-The values of 'navigation-transition-name' have the following meanings:
-
-<dl dfn-type=value dfn-for=navigation-transition-name>
-  <dt><dfn>none</dfn>
-  <dd>
-    No transitions are specified at all, so there will be no navigation transition. Any other navigation transition properties specified for this transition have no effect.
-
-  <dt><dfn><<custom-ident>></dfn>
-  <dd>
-    The transition will use the media at-rule associated with the name specified by <<custom-ident>>, if they exist. If no such media at-rule exists, there is no navigation transition.
-
-    The <a href="http://www.w3.org/TR/css3-values/#common-keywords">CSS-wide keywords</a>, keywords defined by this property and keywords defined by the 'navigation-transition-type' property are not valid transition names.
-</dl>
-
-<h3 id="navigation-transition-type">The 'navigation-transition-type' property</h3>
-
-The 'navigation-transition-type' property determines what type of transition is being defined, either ''enter'' or ''exit''.
-
-<pre class='propdef'>
+<pre class='descdef'>
 Name: navigation-transition-type
 Value: <<single-navigation-transition-type>>#
 Initial: enter
-Inherited: no
+For: @navigation
 </pre>
 
 <dfn>&lt;single-navigation-transition-type></dfn> = enter | exit
@@ -151,15 +112,13 @@ The values of 'navigation-transition-type' have the following meanings:
     This navigation transition is for when a page has been navigated away from.
 </dl>
 
-<h3 id="navigation-transition-duration">The 'navigation-transition-duration' property</h3>
+<h4 id="navigation-transition-duration">navigation-transition-duration</h4>
 
-The 'navigation-transition-duration' property defines the length of time that a navigation transition applies for.
-
-<pre class='propdef'>
+<pre class='descdef'>
 Name: navigation-transition-duration
 Value: <<time>>#
-Initial: ''0s''
-Inherited: no
+Initial: 0s
+For: @navigation
 </pre>
 
 <dl>
@@ -167,19 +126,19 @@ Inherited: no
   <dd>
     The <<time>> specifies the length of time that a navigation transition applies for. A negative <<time>> is invalid.
 
-    If the <<time>> is ''0s'', like the initial value, the style of the transition will not be applied, but the transition itself still occurs instantaneously. Specifically, start and end events are fired.
+    If the <<time>> is ''0s'', the style of the transition will not be applied, but the transition itself still occurs instantaneously. Specifically, start and end events are fired.
 </dl>
 
-<h3 id="navigation-transition-start">The 'navigation-transition-start' property</h3>
+<h4 id="navigation-transition-start">navigation-transition-start</h4>
 
-The 'navigation-transition-start' property describes when the navigation transition will start applying.
-
-<pre class='propdef'>
+<pre class='descdef'>
 Name: navigation-transition-start
 Value: <<single-navigation-transition-start>>#
 Initial: on-load
-Inherited: no
+For: @navigation
 </pre>
+
+<dfn>&lt;single-navigation-transition-start></dfn> = on-load | immediate
 
 The values of 'navigation-transition-start' have the following meanings:
 
@@ -194,38 +153,27 @@ The values of 'navigation-transition-start' have the following meanings:
   </dd>
 </dl>
 
-<h3 id="navigation-transition">The 'navigation-transition' shorthand property</h3>
+<h4 id="navigation-transition-z-index">navigation-transition-z-index</h4>
 
-The 'navigation-transition' shorthand property is a comma-separated list of navigation transition definitions. Each item in the list gives one item of the value for all of the subproperties of the shorthand, which are known as the navigation transition properties. When a property is not specified in its shorthand and not specified using a navigation transition property, it will take on its initial value.
-
-<pre class='propdef'>
-Name: navigation-transition
-Value: <<single-navigation-transition>>#
-Initial: see individual properties
-Inherited: no
-</pre>
-
-<dfn>&lt;single-navigation-transition></dfn> = <<single-navigation-transition-name>> || <<single-navigation-transition-type>> || <<time>> || <<single-navigation-transition-start>>
-
-Order is not important, as there are no duplicate or conflicting types.
-
-<h3 id="navigation-transition-z-index">The 'navigation-transition-z-index' property</h3>
-
-The 'navigation-transition-z-index' property assigns the page a z-ordering priority for when transitions on two pages happen simultaneously.
-
-<pre class='propdef'>
+<pre class='descdef'>
 Name: navigation-transition-z-index
 Value: <<integer>>#
 Initial: 0
-Inherited: no
+For: @navigation
 </pre>
+
+<dl>
+  <dt><dfn value for=navigation-transition-z-index><<integer>></dfn>
+  <dd>
+    Assigns the page a z-ordering priority for when transitions on two pages happen simultaneously.
+</dl>
 
 
 <h2 id="starting">Starting navigation transitions</h2>
 
 Navigation transitions can start either immediately, or after the window has emitted the <code>load</code> event associated with the page, as specified by the 'navigation-transition-start' property. If a page has no navigation transition specified and a page is navigated to that has navigation transitions, it will remain on screen for the duration of the longest transition specified on the transitioning page. During transitions, a page will remain in the window and its specified media at-rule will apply. The page that is being navigated to will be drawn on top of the page being navigated from, unless otherwise specified by the 'navigation-transition-z-index' property.
 
-A navigation's media at rule will apply for the specified duration of the navigation transition. Once that duration has elapsed, the media at rule will no longer apply. If all navigation transition durations have elapsed and the page is being navigated from, the page will unload, similarly to if no navigation transition had been specified and the page had been navigated from.
+A navigation's at rule will apply for the specified duration of the navigation transition. Once that duration has elapsed, the style block associated with the at-rule will no longer apply. If all navigation transition durations have elapsed and the page is being navigated from, the page will unload, similarly to if no navigation transition had been specified and the page had been navigated from.
 
 <h3 id="multiple-transitions">Multiple navigation transitions</h3>
 
@@ -237,12 +185,12 @@ When navigating backwards, animations are also run backwards, as specified in th
 
 <h3 id="interrupting-transitions">Interrupting a navigation transition</h3>
 
-If the user agent needs to interrupt a navigation transition, for example, due to the user interrupting the page loading by navigating elsewhere, or by stopping transfers, all navigation transitions style rules will immediately stop applying.
+If the user agent needs to interrupt a navigation transition, for example, due to the user interrupting the page loading by navigating elsewhere, or by stopping transfers, all navigation transitions style rules will immediately stop applying. The ''navigationtransitionend'' event will be emitted if any transitions were interrupted.
 
 
 <h2 id="navigation-transition-events">Navigation transition events</h2>
 
-Navigation transition-related events are available through the DOM Event system. The start and end of a navigation transition generate DOM events. A page can have multiple navigation transitions operating simultaneously. Each 'navigation-transition-name' specifies a single transition and will generate a separate pairing of events.
+Navigation transition-related events are available through the DOM Event system. The start and end of a navigation transition generates DOM events. A page can have multiple navigation transitions operating simultaneously. One ''navigationtransitionstart'' event will be emitted when the first navigation transition starts, and one ''navigationtransitionend'' event will be emitted when the last navigation transition ends.
 
 <h3 id="interface-navigation-transition-event">The <code>NavigationTransitionEvent</code> interface</h3>
 
@@ -253,31 +201,19 @@ The <code>NavigationTransitionEvent</code> interface provides specific contextua
 <pre class="idl">
   [Constructor(DOMString type, optional NavigationTransitionEventInit navigationTransitionEventInitDict)]
   interface NavigationTransitionEvent : Event {
-    readonly attribute DOMString navigationTransitionName;
     readonly attribute DOMString navigationTransitionType;
-    readonly attribute float navigationTransitionDuration;
   };
   dictionary NavigationTransitionEventInit : EventInit {
-    DOMString navigationTransitionName = "";
     DOMString navigationTransitionType = "enter";
-    float navigationTransitionDuration = 0.0;
   };
 </pre>
 
 <h4 id="interface-navigation-transition-event-attributes">Attributes</h4>
 
 <dl dfn-type=attribute dfn-for=NavigationTransitionEvent>
-  <dt><dfn>navigationTransitionName</dfn>, of type <a interface>DOMString</a>, readonly
-  <dd>
-    The value of the 'navigation-transition-name' property of the navigation transition that fired the event.
-
   <dt><dfn>navigationTransitionType</dfn>, of type <a interface>DOMString</a>, readonly
   <dd>
     A string representing the type of navigation transition. Can take one of four values; ''enter'', ''enter-back'', ''exit'' or ''exit-back''.
-
-  <dt><dfn>navigationTransitionDuration</dfn>, of type float, readonly
-  <dd>
-    The amount of time the navigation transition will apply for, as determined by the transition's 'navigation-transition-duration' property.
 </dl>
 
 <h3 id="event-navigation-transition-event">Types of <code>NavigationTransitionEvent</code></h3>
@@ -287,19 +223,19 @@ The different types of navigation transition events that can occur are:
 <dl dfn-type=event dfn-for=NavigationTransitionEvent>
   <dt><dfn>navigationtransitionstart</dfn>
   <dd>
-    The <a idl>navigationtransitionstart</a> event occurs at the start of the transition.
+    The <a idl>navigationtransitionstart</a> event occurs at the start of the first transition.
     <ul>
       <li>Bubbles: Yes</li>
       <li>Cancelable: No</li>
-      <li>Context Info: navigationTransitionName, navigationTransitionType, navigationTransitionDuration</li>
+      <li>Context Info: navigationTransitionType</li>
     </ul>
 
   <dt><dfn>navigationtransitionend</dfn>
   <dd>
-    The <a idl>navigationtransitionend</a> event occurs at the end of the transition.
+    The <a idl>navigationtransitionend</a> event occurs at the end of the last transition.
     <ul>
       <li>Bubbles: Yes</li>
       <li>Cancelable: No</li>
-      <li>Context Info: navigationTransitionName, navigationTransitionType, navigationTransitionDuration</li>
+      <li>Context Info: navigationTransitionType</li>
     </ul>
 </dl>
