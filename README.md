@@ -2,6 +2,8 @@
 
 Gaia Navigator is a partial implementation of a specification proposal, outlined below.
 
+Note: The implementation and specification listed in this document is currently out-of-date, please refer to the [spec documents](spec/navigation-transitions.html) for the most recent version.
+
 ## Limitations
 
 * Each page must include [gaia-navigator.js](gaia-navigator.js). After the first navigation, each subsequent page will be wrapped in an iframe.
