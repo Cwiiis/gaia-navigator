@@ -19,9 +19,9 @@ Web Navigation Transitions defines an interface and behaviour that allows animat
 The use cases for the specification include the following:
 
 : Cross-fading a new page on load
-:: A page may want to fade in on top of the previous page to make the navigation less jarring. The programming interface in this specification allows such an effect using just CSS on the destination page.
+:: A page may want to fade in on top of the previous page to make the navigation transition less jarring. The programming interface in this specification allows such an effect using just CSS on the destination page.
 <pre class='example lang-css'>
-@navigation enter 0.5s {
+@navigation-transition enter 0.5s {
   html {
     background-color: transparent;
     animation: fade-in 0.5s;
@@ -37,7 +37,7 @@ The use cases for the specification include the following:
 : Sliding a new page in from the right
 :: A page may want to slide in from the right to give the user an idea of space when navigating a site.
 <pre class='example lang-css'>
-@navigation enter 0.2s {
+@navigation-transition enter 0.2s {
   html {
     background-color: transparent;
     animation: slide-in 0.2s;
@@ -51,7 +51,7 @@ The use cases for the specification include the following:
 
 :: The previous page may want to slide away to the left during this transition, which can be done with an exit transition.
 <pre class='example lang-css'>
-@navigation exit 0.2s {
+@navigation-transition exit 0.2s {
   html {
     background-color: transparent;
     animation: slide-out 0.2s;
@@ -66,7 +66,7 @@ The use cases for the specification include the following:
 : Fading a page while loading
 :: A page may want to fade slightly to indicate to the user that it is not interactive while loading a new page.
 <pre class='example lang-css'>
-@navigation exit 0.2s immediate {
+@navigation-transition exit 0.2s immediate {
   html {
     animation: fade 0.5s both;
   }
@@ -79,15 +79,15 @@ The use cases for the specification include the following:
 :: The destination page could also fade in to complete the effect.
 
 
-<h2 id="atnavigation-rule">The <dfn at-rule>@navigation</dfn> rule</h2>
+<h2 id="atnavigation-transition-rule">The <dfn at-rule>@navigation-transition</dfn> rule</h2>
 
-The ''@navigation'' <a href="http://www.w3.org/TR/CSS21/syndata.html#at-rules">at-rule</a> consists of the @-keyword followed by any navigation transition properties and finally a block of style rules to apply during the defined navigation transition.
+The ''@navigation-transition'' <a href="http://www.w3.org/TR/CSS21/syndata.html#at-rules">at-rule</a> consists of the @-keyword followed by any navigation transition properties and finally a block of style rules to apply during the defined navigation transition.
 
 <h3 id="syntax">Syntax</h3>
 
-The syntax for the ''@navigation'' rule is as follows:
+The syntax for the ''@navigation-transition'' rule is as follows:
 
-navigation 'navigation-transition-type' 'navigation-transition-duration' [ 'navigation-transition-start' ] [ 'navigation-transition-z-index' ]
+navigation-transition 'navigation-transition-type' 'navigation-transition-duration' [ 'navigation-transition-start' ] [ 'navigation-transition-z-index' ]
 
 <h4 id="navigation-transition-type">navigation-transition-type</h4>
 
@@ -95,7 +95,7 @@ navigation 'navigation-transition-type' 'navigation-transition-duration' [ 'navi
 Name: navigation-transition-type
 Value: <<single-navigation-transition-type>>#
 Initial: enter
-For: @navigation
+For: @navigation-transition
 </pre>
 
 <dfn>&lt;single-navigation-transition-type></dfn> = enter | exit
@@ -118,7 +118,7 @@ The values of 'navigation-transition-type' have the following meanings:
 Name: navigation-transition-duration
 Value: <<time>>#
 Initial: 0s
-For: @navigation
+For: @navigation-transition
 </pre>
 
 <dl>
@@ -135,7 +135,7 @@ For: @navigation
 Name: navigation-transition-start
 Value: <<single-navigation-transition-start>>#
 Initial: on-load
-For: @navigation
+For: @navigation-transition
 </pre>
 
 <dfn>&lt;single-navigation-transition-start></dfn> = on-load | immediate
@@ -149,7 +149,7 @@ The values of 'navigation-transition-start' have the following meanings:
   </dd>
   <dt><dfn value for="navigation-transition-start, <single-navigation-transition-start>">immediate</dfn></dt>
   <dd>
-    The transition will apply immediately.
+    The transition will apply immediately after the page navigation is initiated.
   </dd>
 </dl>
 
@@ -159,7 +159,7 @@ The values of 'navigation-transition-start' have the following meanings:
 Name: navigation-transition-z-index
 Value: <<integer>>#
 Initial: 0
-For: @navigation
+For: @navigation-transition
 </pre>
 
 <dl>
@@ -171,9 +171,9 @@ For: @navigation
 
 <h2 id="starting">Starting navigation transitions</h2>
 
-Navigation transitions can start either immediately, or after the window has emitted the <code>load</code> event associated with the page, as specified by the 'navigation-transition-start' property. If a page has no navigation transition specified and a page is navigated to that has navigation transitions, it will remain on screen for the duration of the longest transition specified on the transitioning page. During transitions, a page will remain in the window and its specified media at-rule will apply. The page that is being navigated to will be drawn on top of the page being navigated from, unless otherwise specified by the 'navigation-transition-z-index' property.
+Navigation transitions can start either immediately, or after the window has emitted the <code>load</code> event associated with the page, as specified by the 'navigation-transition-start' property. If a page has no navigation transition specified and a page is navigated to that has navigation transitions, it will remain on screen for the duration of the longest transition specified on the transitioning page. During navigation transitions, a page will remain in the window and the style rules specified in the ''@navigation-transition'' block will apply. The page that is being navigated to will be drawn on top of the page being navigated from, unless otherwise specified by the 'navigation-transition-z-index' property. This is unrelated to an individual element's <code>z-index</code>, each page is drawn entirely in its particular order and cannot interleave contents with the other page.
 
-A navigation's at rule will apply for the specified duration of the navigation transition. Once that duration has elapsed, the style block associated with the at-rule will no longer apply. If all navigation transition durations have elapsed and the page is being navigated from, the page will unload, similarly to if no navigation transition had been specified and the page had been navigated from.
+A navigation transition's at rule will apply for the specified duration of the navigation transition. Once that duration has elapsed, the style block associated with the at-rule will no longer apply. If all navigation transition durations have elapsed and the page is being navigated from, the page will unload, similarly to if no navigation transition had been specified and the page had been navigated from.
 
 <h3 id="multiple-transitions">Multiple navigation transitions</h3>
 
@@ -186,6 +186,27 @@ When navigating backwards, animations are also run backwards, as specified in th
 <h3 id="interrupting-transitions">Interrupting a navigation transition</h3>
 
 If the user agent needs to interrupt a navigation transition, for example, due to the user interrupting the page loading by navigating elsewhere, or by stopping transfers, all navigation transitions style rules will immediately stop applying. The ''navigationtransitionend'' event will be emitted if any transitions were interrupted.
+
+If a navigation transition that was scheduled to start on a page load via 'navigation-transition-start' is interrupted, navigation transitions will stop applying, the page that was navigated from will unload and the new page will be displayed.
+
+
+<h2 id="navigation-transitions-cssom">CSSOM</h2>
+
+The <a interface>CSSRule</a> interface is extended as follows:
+
+<pre class="idl partial">
+partial interface CSSRule {
+  const unsigned short NAVIGATION_TRANSITION_RULE = 1002;
+};
+</pre>
+
+The <a interface>CSSNavigationTransitionRule</a> interface represents a ''@navigation-transition'' rule.
+
+<pre class="idl">
+interface CSSNavigationTransitionRule : CSSGroupingRule {
+  // TODO
+};
+</pre>
 
 
 <h2 id="navigation-transition-events">Navigation transition events</h2>
@@ -239,3 +260,7 @@ The different types of navigation transition events that can occur are:
       <li>Context Info: navigationTransitionType</li>
     </ul>
 </dl>
+
+<h3 id="navigation-transitions-event-ordering">Ordering</h3>
+
+A page's <a idl>navigationtransitionstart</a> event will be fired after the first ''@navigation-transition'' block is applied, as specified by 'navigation-transition-start'. This event will be fired before the first paint after the block is applied. A page's <a idl>navigationtransitionend</a> event will be fired after the duration specified by 'navigation-transition-duration'. Although a navigation transition causes a page's lifetime to extend to the duration of that transition, the page's <code>beforeunload</code> event is unaffected and will fire before <a idl>navigationtransitionstart</a>.
