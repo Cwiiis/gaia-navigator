@@ -1,7 +1,7 @@
 <pre class='metadata'>
 Title: Web Navigation Transitions
 Status: ED
-ED: http://chrislord.net/files/mozilla/gaia-navigator/spec/navigation-transitions.html
+ED: http://cwiiis.github.io/gaia-navigator/
 Shortname: nav-trans
 Level: 1
 Editor: Chris Lord, Mozilla, clord@mozilla.com
