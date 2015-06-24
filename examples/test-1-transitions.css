@@ -1,0 +1,24 @@
+
+@navigation-transition enter 0.25s {
+  div#bg {
+    animation-name: slide-from-left;
+    animation-duration: 0.25s;
+  }
+}
+
+@navigation-transition exit 0.25s {
+  div#bg {
+    animation-name: slide-left;
+    animation-duration: 0.25s;
+  }
+}
+
+@keyframes slide-from-left {
+  from { transform: translateX(100%) }
+  to {}
+}
+
+@keyframes slide-left {
+  from {}
+  to { transform: translateX(-100%); }
+}

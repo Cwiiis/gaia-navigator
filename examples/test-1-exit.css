@@ -1,9 +1,0 @@
-div#bg {
-  animation-name: slide-left;
-  animation-duration: 0.25s;
-}
-
-@keyframes slide-left {
-  from {}
-  to { transform: translateX(-100%); }
-}
