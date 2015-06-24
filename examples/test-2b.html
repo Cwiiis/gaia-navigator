@@ -1,6 +1,5 @@
 <head>
   <title>Gaia Navigator Test 2 - Detail</title>
-  <link rel="transition-enter" duration="0.5s" href="test-2-enter.css" />
   <script type="text/javascript" src="../gaia-navigator.js"></script>
 
   <style>
@@ -56,6 +55,37 @@
       font-weight: bold;
       font-size: 10vw;
       cursor: pointer;
+    }
+
+    @navigation-transition enter 0.5s {
+      div {
+        animation-fill-mode: both;
+      }
+
+      div#bg {
+        animation-name: fade-in;
+        animation-duration: 0.35s;
+      }
+
+      div#detail {
+        animation-name: slide-from-bottom;
+        animation-duration: 0.25s;
+      }
+
+      div#back {
+        animation-name: slide-from-bottom;
+        animation-duration: 0.25s;
+        animation-delay: 0.25s;
+      }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slide-from-bottom {
+      from { transform: translateY(calc(100% + 6vw)); }
     }
   </style>
 

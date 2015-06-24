@@ -13,6 +13,16 @@ var gnhNavHistory = {
   position: -1
 };
 
+var gnhOldFrame = null;
+var gnhOldWindow = null;
+var gnhOldHasTransitions = false;
+
+var gnhNewFrame = null;
+var gnhNewWindow = window;
+var gnhNewHasTransitions = false;
+
+var gnhTransitionToDuration = -1;
+
 // If the url given is the same as the current url, this will modify the URL's
 // query string slightly so that the iframe will load. Otherwise, loading the
 // current URL in an iframe will not work.
@@ -43,50 +53,44 @@ function gnh_navigate(url) {
   newFrame.style.width = '100%';
   newFrame.style.height = '100%';
 
+  gnhOldFrame = gnhNewFrame ? gnhNewFrame : document.body;
+  gnhOldWindow = gnhNewWindow;
+  gnhOldHasTransitions = gnhNewHasTransitions;
+
   document.body.appendChild(newFrame);
+
+  gnhNewFrame = newFrame;
+  gnhNewWindow = newFrame.contentWindow;
+  gnhNewHasTransitions = false;
+
   newFrame.src = gnh_normaliseUrl(url);
 }
 
 // Start a transition
 function gnh_transition() {
-  var frames = document.getElementsByClassName('gaia-navigator-iframe');
-  if (frames.length > 2) {
-    console.error('More than two iframes at transition start');
-  }
-  if (frames.length < 1) {
-    console.log('No frames to transition');
+  if (!gnhOldFrame) {
+    console.log('No frame to transition from');
     return;
   }
 
-  var oldFrame, oldWindow, newFrame, newWindow;
-  if (frames.length === 1) {
-    oldFrame = document.body;
-    oldWindow = window;
-    newFrame = frames[0];
-    newWindow = newFrame.contentWindow;
-  } else {
-    oldFrame = frames[0];
-    oldWindow = oldFrame.contentWindow;
-    newFrame = frames[1];
-    newWindow = newFrame.contentWindow;
-  }
-
   var name;
-  name = gnhBackwards ? 'transition-enter' : 'transition-exit';
-  oldWindow.postMessage({ type: 'client-transition-from',
-                          name: name,
-                          backwards: gnhBackwards }, '*');
+  name = gnhBackwards ? 'enter' : 'exit';
+  gnhOldWindow.postMessage(
+    { type: 'client-transition-from',
+      name: name,
+      backwards: gnhBackwards }, '*');
   if (gnhBackwards) {
-    oldFrame.style.zIndex = '1';
+    gnhOldFrame.style.zIndex = '1';
   }
 
-  name = gnhBackwards ? 'transition-exit' : 'transition-enter';
-  newWindow.postMessage({ type: 'client-transition-to',
-                          name: name,
-                          backwards: gnhBackwards,
-                          historyLength: gnhNavHistory.entries.length }, '*');
+  name = gnhBackwards ? 'exit' : 'enter';
+  gnhNewFrame.contentWindow.postMessage(
+    { type: 'client-transition-to',
+      name: name,
+      backwards: gnhBackwards,
+      historyLength: gnhNavHistory.entries.length }, '*');
   if (!gnhBackwards) {
-    newFrame.style.zIndex = '1';
+    gnhNewFrame.style.zIndex = '1';
   }
 }
 
@@ -95,11 +99,8 @@ window.addEventListener('popstate',
     if (e.state && e.state.position === -1) {
       // We've hit a user push/replace state, tell the client to fake a
       // popstate event on the subframe
-      var frames = document.getElementsByClassName('gaia-navigator-iframe');
-      var target = frames.length ?
-        frames[frames.length - 1].contentWindow : window;
-      target.postMessage({ type: 'client-popstate',
-                           state: e.state.state }, '*');
+      gnhNewWindow.postMessage({ type: 'client-popstate',
+                                 state: e.state.state }, '*');
       return;
     }
 
@@ -118,6 +119,9 @@ window.addEventListener('popstate',
 
 window.addEventListener('message',
   function gnh_hostMessageHandler(e) {
+    if (e.data.type.indexOf('host-') !== 0) {
+      return;
+    }
     console.log('Host received message', e.data);
 
     switch (e.data.type) {
@@ -153,42 +157,78 @@ window.addEventListener('message',
     case 'host-loaded':
       var iframes = document.getElementsByClassName('gaia-navigator-iframe');
       if (gnhNavHistory.position === -1) {
-        var url = iframes.length ? iframes[0].src : location.href;
+        var url = gnhNewWindow.location.href;
         gnhNavHistory.entries.push({ title: e.data.title, url: url });
         gnhNavHistory.position = 0;
       } else {
         gnhNavHistory.entries[gnhNavHistory.position].title = e.data.title;
       }
       document.title = e.data.title;
+      gnhNewHasTransitions = e.data.hasTransitions;
 
-      if (iframes.length) {
-        gnh_transition();
-      }
+      gnh_transition();
       break;
 
-    case 'host-transition-start':
+    case 'host-transition-to-start':
       window.requestAnimationFrame(function() {
         // Unhide the new frame now it's finished loading and the transition
         // has started.
-        var frames = document.getElementsByClassName('gaia-navigator-iframe');
-        var newFrame = frames[frames.length - 1];
-        newFrame.style.visibility = 'visible';
+        gnhNewFrame.style.visibility = 'visible';
 
-        // Remove the old frame from the document after the transition finishes
-        window.setTimeout(function() {
-          while (document.body.childElementCount > 1) {
-            if (document.body.firstElementChild !== newFrame) {
-              document.body.removeChild(document.body.firstElementChild);
-            } else {
-              document.body.removeChild(document.body.children[1]);
+        // If the old frame doesn't have any transitions, we'll tell it to end
+        // when the new frame has finished its transition(s).
+        if (!gnhOldHasTransitions || gnhNewHasTransitions) {
+          window.setTimeout(function() {
+            if (!gnhOldHasTransitions) {
+              gnhOldWindow.postMessage({ type: 'client-transition-from-end',
+                                         name: e.data.name === 'exit' ?
+                                           'enter' : 'exit',
+                                         backwards: gnhBackwards }, '*');
             }
-          }
-          newFrame.style.zIndex = '';
-
-          // We are now a dedicated host, so disconnect the client.
-          window.postMessage({ type: 'client-disconnect' }, '*');
-        }, e.data.duration);
+            if (gnhNewHasTransitions || !gnhOldHasTransitions) {
+              gnhNewFrame.style.zIndex = '';
+              gnhNewWindow.postMessage({ type: 'client-transition-to-end',
+                                         name: e.data.name,
+                                         backwards: gnhBackwards }, '*');
+            }
+          }, e.data.duration);
+        }
       });
+      break;
+
+    case 'host-transition-from-start':
+      window.requestAnimationFrame(function() {
+        if (!gnhNewHasTransitions || gnhOldHasTransitions) {
+          window.setTimeout(function() {
+            if (!gnhNewHasTransitions) {
+              gnhNewFrame.style.zIndex = '';
+              gnhNewWindow.postMessage({ type: 'client-transition-to-end',
+                                         name: e.data.name === 'exit' ?
+                                           'enter' : 'exit',
+                                         backwards: gnhBackwards }, '*');
+            }
+            if (gnhOldHasTransitions || !gnhNewHasTransitions) {
+              gnhOldWindow.postMessage({ type: 'client-transition-from-end',
+                                         name: e.data.name,
+                                         backwards: gnhBackwards }, '*');
+            }
+
+            // We are now a dedicated host, so disconnect the client.
+            window.postMessage({ type: 'client-disconnect' }, '*');
+          }, e.data.duration);
+        }
+      });
+      break;
+
+    case 'host-transition-from-end':
+      // Remove the old frame/contents from the document
+      while (document.body.childElementCount > 1) {
+        if (document.body.firstElementChild !== gnhNewFrame) {
+          document.body.removeChild(document.body.firstElementChild);
+        } else {
+          document.body.removeChild(document.body.children[1]);
+        }
+      }
       break;
     }
   });
@@ -200,17 +240,26 @@ window.addEventListener('message',
 // History length, as sent by the host which keeps track of history.
 var gncHistoryLength = 1;
 
+// Navigation transition style data. Contains arrays of objects of the
+// format { type: 'enter' | 'exit', duration: <milliseconds>, style: <text> }
+var gncNavTrans = [];
+
+// Cached length of the string '@navigation-transition'
+var gncRuleLength = '@navigation-transition'.length;
+
 /**
- * Pre-loads all transition styles. Currently also rewrites anchor links to
+ * Parses all transition styles. Currently also rewrites anchor links to
  * use the gaia-navigator location shim.
  */
 window.addEventListener('load',
   function gnc_onLoad() {
+    var i, iLen;
     window.removeEventListener('load', gnc_onLoad);
 
+    // TODO: Don't do this, use a click handler to intercept?
     console.log('Rewriting links');
     var anchors = document.getElementsByTagName('a');
-    for (var i = 0, iLen = anchors.length; i < iLen; i++) {
+    for (i = 0, iLen = anchors.length; i < iLen; i++) {
       var a = anchors[i];
       if (!a.href || !a.href.length || a.href[0] === '#' || a.onclick ||
           a.download || a.target || a.href.indexOf('javascript:') === 0) {
@@ -226,30 +275,77 @@ window.addEventListener('load',
       a.href = '';
     }
 
-    console.log('Checking for transition styles');
-    var styles = document.head.getElementsByTagName('link');
+    console.log('Checking for navigation transition rules');
+
+    var extractNavTrans = function(css) {
+      // TODO: Respect media queries
+      // TODO: Don't do this character-by-character,
+      //       could be much more efficient
+      var i, iLen, depth;
+      var navTran = { start: -1, blockStart: -1, properties: null };
+      for (i = depth = 0, iLen = css.length; i < iLen; i++) {
+        if (depth === 0 && css[i] === '@' &&
+            css.slice(i, i + gncRuleLength + 1).search(
+              /^@navigation-transition\b/) !== -1) {
+          navTran.start = i + gncRuleLength;
+        }
+
+        if (css[i] === '{') {
+          depth ++;
+          if (navTran.start !== -1 && navTran.blockStart === -1) {
+            navTran.blockStart = i + 1;
+            navTran.properties = css.slice(navTran.start, i - 1);
+          }
+        } else if (css[i] === '}') {
+          depth --;
+          if (depth === 0 && navTran.blockStart !== -1) {
+            // Write out the properties and rules to the global nav-trans array
+            var durationMatch = navTran.properties.match(/\b0?\.?\d*m?s\b/);
+            var transition = {
+              type: (navTran.properties.search(/\bexit\b/) !== -1) ?
+                'exit' : 'enter',
+              duration: (durationMatch && durationMatch.length) ?
+                gnc_getDuration(durationMatch[0]) : 0,
+              style: css.slice(navTran.blockStart, i - 1)
+            };
+            gncNavTrans.push(transition);
+
+            // Reset
+            navTran.start = -1;
+            navTran.blockStart = -1;
+          }
+        }
+      }
+    };
+
+    var styles = document.getElementsByTagName('style');
+    for (i = 0, iLen = styles.length; i < iLen; i++) {
+      extractNavTrans(styles[i].textContent);
+    }
 
     var nRequests = 0;
-    for (var i = 0, iLen = styles.length; i < iLen; i++) {
-      var link = styles[i];
-      var duration = link.getAttribute('duration');
-      if (((link.rel !== 'transition-enter') &&
-           (link.rel !== 'transition-exit')) ||
-          !duration || !link.href || !link.href.length) {
+    var extStyles = document.getElementsByTagName('link');
+    for (i = 0, iLen = extStyles.length; i < iLen; i++) {
+      var link = extStyles[i];
+      if (link.rel !== 'stylesheet' || !link.href || !link.href.length) {
         continue;
       }
 
-      console.log('Pre-loading transition stylesheet at ' + link.href);
+      console.log('Checking for @navigation-transition in external ' +
+                  'stylesheet at ' + link.href);
+
       nRequests ++;
       var request = new XMLHttpRequest();
       request.open('GET', link.href);
       request.overrideMimeType('text/css');
       request.onreadystatechange = function(elem) {
         return function () {
-          elem.styleData = this.responseText;
+          extractNavTrans(this.responseText);
           if (--nRequests === 0) {
-            window.parent.postMessage({ type: 'host-loaded',
-                                        title: document.title }, '*');
+            window.parent.postMessage(
+              { type: 'host-loaded',
+                title: document.title,
+                hasTransitions: gncNavTrans.length > 0 }, '*');
           }
         }
       }(link);
@@ -257,8 +353,10 @@ window.addEventListener('load',
     }
 
     if (nRequests === 0) {
-      window.parent.postMessage({ type: 'host-loaded',
-                                  title: document.title }, '*');
+      window.parent.postMessage(
+        { type: 'host-loaded',
+          title: document.title,
+          hasTransitions: gncNavTrans.length > 0 }, '*');
     }
   });
 
@@ -281,35 +379,27 @@ function gnc_getDuration(timeText) {
 }
 
 /**
- * Start a navigation transition. Name is 'transition-enter' or
- * 'transition-exit'.
+ * Start a navigation transition. type is 'enter' or 'exit'.
  */
-function gnc_transition(name, backwards, to) {
-  console.log('Searching style links for ' + name);
+function gnc_transition(type, backwards, to) {
+  console.log('Running ' + type + ' transition');
 
   var newStyles = [];
   var longestDuration = 0;
-  var styles = document.head.getElementsByTagName('link');
 
-  for (var i = 0, iLen = styles.length; i < iLen; i++) {
-    var link = styles[i];
-    var duration = link.getAttribute('duration');
-    if (link.rel !== name || !duration) {
+  for (var i = 0, iLen = gncNavTrans.length; i < iLen; i++) {
+    if (gncNavTrans[i].type !== type) {
       continue;
     }
 
-    console.log('Found transition style', link);
-
-    if (link.href && link.href.length > 0) {
-      var style = document.createElement('style');
-      style.appendChild(document.createTextNode(link.styleData));
-      newStyles.push(style);
+    var transition = gncNavTrans[i];
+    if (transition.duration > longestDuration) {
+      longestDuration = transition.duration;
     }
 
-    duration = gnc_getDuration(duration);
-    if (duration > longestDuration) {
-      longestDuration = duration;
-    }
+    var style = document.createElement('style');
+    style.appendChild(document.createTextNode(transition.style));
+    newStyles.push(style);
   }
 
   for (i = 0, iLen = newStyles.length; i < iLen; i++) {
@@ -370,23 +460,17 @@ function gnc_transition(name, backwards, to) {
   window.dispatchEvent(new CustomEvent('navigation-transition-start',
                                        { detail: { back: backwards }}));
 
-  // After the transition starts, JS execution is meant to end on the from
-  // document, so only do the rest on the to document.
-  if (to) {
-    window.requestAnimationFrame(
-      function () {
-        window.setTimeout(function () {
+  window.requestAnimationFrame(
+    function () {
+      window.setTimeout(function () {
+        if (to) {
           // Remove transition styles
           for (i = 0, iLen = newStyles.length; i < iLen; i++) {
             document.head.removeChild(newStyles[i]);
           }
-
-          // Fire transition-end signal
-          window.dispatchEvent(new CustomEvent('navigation-transition-end',
-                                 { detail: { back: backwards }}));
-        }, longestDuration);
-      });
-  }
+        }
+      }, longestDuration);
+    });
 
   return longestDuration;
 }
@@ -509,6 +593,9 @@ function gnc_getHistory() {
 
 window.addEventListener('message',
   function gnc_handleMessage(e) {
+    if (e.data.type.indexOf('client-') !== 0) {
+      return;
+    }
     console.log('Client received message', e.data);
 
     var to = false;
@@ -518,12 +605,25 @@ window.addEventListener('message',
       gncHistoryLength = e.data.historyLength;
     case 'client-transition-from':
       var duration = gnc_transition(e.data.name, e.data.backwards, to);
-      window.parent.postMessage({ type: 'host-transition-start',
+      window.parent.postMessage({ type: to ? 'host-transition-to-start' :
+                                             'host-transition-from-start',
+                                  name: e.data.name,
                                   duration: duration }, '*');
       break;
+
+    case 'client-transition-to-end':
+      to = true;
+    case 'client-transition-from-end':
+      window.dispatchEvent(new CustomEvent('navigation-transition-end',
+                             { detail: { back: e.data.backwards }}));
+      window.parent.postMessage({ type: to ? 'host-transition-to-end' :
+                                             'host-transition-from-end' }, '*');
+      break;
+
     case 'client-disconnect':
       window.removeEventListener('message', gnc_handleMessage);
       break;
+
     case 'client-popstate':
       window.dispatchEvent(
         new PopStateEvent('popstate', { state: e.data.state }));
