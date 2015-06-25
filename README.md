@@ -8,11 +8,12 @@ Gaia Navigator is a partial implementation of a specification proposal for [CSS 
 * The first page must take care to remove event listeners that may continue to fire after navigation. Attaching to the `navigationtransitionend` event may aid in this.
 * For reverse animations to work correctly, CSS property `animation-delay` must always be specified together with `animation-duration`.
 * Direct manipulation of the history and location objects will have unexpected results, instead use the shim objects available via `gnc_getHistory` and `gnc_getLocation`.
-* The CSSOM for this specification is not available using this shim.
+* The last declared `navigation-transition-z-index` will apply for the duration of all transitions.
+* `navigation-transition-z-index` will override the `z-index` of `document.body` children on the first loaded page.
+* The proposed CSSOM for this specification is not available using this shim.
 
 ## TODO
 
-* Support `navigation-transition-z-index` property
 * Support `navigation-transition-start` property
 * Support a preload spec
 
@@ -27,7 +28,7 @@ Simple slide between two pages:
 <head>
   <style>
     body {
-      border: 0;
+      margin: 0;
       height: 100%;
     }
 
@@ -61,7 +62,7 @@ Simple slide between two pages:
   <link rel="transition-enter" duration="0.25s" href="page-2-enter.css" />
   <style>
     body {
-      border: 0;
+      margin: 0;
       height: 100%;
     }
 

@@ -170,6 +170,7 @@ window.addEventListener('message',
         // Unhide the new frame now it's finished loading and the transition
         // has started.
         gnhNewFrame.style.visibility = 'visible';
+        gnhNewFrame.style.zIndex = e.data.zIndex;
 
         // If the old frame doesn't have any transitions, we'll tell it to end
         // when the new frame has finished its transition(s).
@@ -192,6 +193,18 @@ window.addEventListener('message',
       break;
 
     case 'host-transition-from-start':
+      if (gnhOldFrame !== document.body) {
+        gnhOldFrame.style.zIndex = e.data.zIndex;
+      } else if (e.data.zIndex !== 0) {
+        var child = document.body.firstElementChild;
+        while (child) {
+          if (child !== gnhNewFrame && child.style) {
+            child.style.zIndex = e.data.zIndex;
+          }
+          child = child.nextSibling;
+        }
+      }
+
       window.requestAnimationFrame(function() {
         if (!gnhNewHasTransitions || gnhOldHasTransitions) {
           window.setTimeout(function() {
@@ -212,6 +225,10 @@ window.addEventListener('message',
           }, e.data.duration);
         }
       });
+      break;
+
+    case 'host-transition-to-end':
+      gnhNewFrame.style.zIndex = '';
       break;
 
     case 'host-transition-from-end':
@@ -235,7 +252,12 @@ window.addEventListener('message',
 var gncHistoryLength = 1;
 
 // Navigation transition style data. Contains arrays of objects of the
-// format { type: 'enter' | 'exit', duration: <milliseconds>, style: <text> }
+// format
+// { type: 'enter' | 'exit',
+//   duration: <milliseconds>,
+//   zIndex: <integer> | null,
+//   style: <text>
+// }
 var gncNavTrans = [];
 
 // Cached length of the string '@navigation-transition'
@@ -295,11 +317,18 @@ window.addEventListener('load',
           if (depth === 0 && navTran.blockStart !== -1) {
             // Write out the properties and rules to the global nav-trans array
             var durationMatch = navTran.properties.match(/\b0?\.?\d*m?s\b/);
+            // TODO: Work out a better way of matching this.
+            var zIndexMatch = navTran.properties.match(/ -?\d /) ||
+                              navTran.properties.match(/^-?\d /) ||
+                              navTran.properties.match(/ -?\d$/);
+            console.log('XXX zIndex match:', zIndexMatch);
             var transition = {
               type: (navTran.properties.search(/\bexit\b/) !== -1) ?
                 'exit' : 'enter',
               duration: (durationMatch && durationMatch.length) ?
                 gnc_getDuration(durationMatch[0]) : 0,
+              zIndex: (zIndexMatch && zIndexMatch.length) ?
+                parseInt(zIndexMatch[0]) : null,
               style: css.slice(navTran.blockStart, i - 1)
             };
             gncNavTrans.push(transition);
@@ -374,12 +403,18 @@ function gnc_getDuration(timeText) {
 
 /**
  * Start a navigation transition. type is 'enter' or 'exit'.
+ * Returns an object of the format
+ * {
+ *   longestDuration: <milliseconds>
+ *   lastZIndex: <integer>
+ * }
  */
 function gnc_transition(type, backwards, to) {
   console.log('Running ' + type + ' transition');
 
   var newStyles = [];
   var longestDuration = 0;
+  var lastZIndex = 0;
 
   for (var i = 0, iLen = gncNavTrans.length; i < iLen; i++) {
     if (gncNavTrans[i].type !== type) {
@@ -389,6 +424,9 @@ function gnc_transition(type, backwards, to) {
     var transition = gncNavTrans[i];
     if (transition.duration > longestDuration) {
       longestDuration = transition.duration;
+    }
+    if (transition.zIndex !== null) {
+      lastZIndex = transition.zIndex;
     }
 
     var style = document.createElement('style');
@@ -466,7 +504,8 @@ function gnc_transition(type, backwards, to) {
       }, longestDuration);
     });
 
-  return longestDuration;
+  return { longestDuration: longestDuration,
+           lastZIndex: lastZIndex };
 }
 
 /**
@@ -598,11 +637,12 @@ window.addEventListener('message',
       to = true;
       gncHistoryLength = e.data.historyLength;
     case 'client-transition-from':
-      var duration = gnc_transition(e.data.name, e.data.backwards, to);
+      var properties = gnc_transition(e.data.name, e.data.backwards, to);
       window.parent.postMessage({ type: to ? 'host-transition-to-start' :
                                              'host-transition-from-start',
                                   name: e.data.name,
-                                  duration: duration }, '*');
+                                  duration: properties.longestDuration,
+                                  zIndex: properties.lastZIndex }, '*');
       break;
 
     case 'client-transition-to-end':
