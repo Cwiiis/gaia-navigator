@@ -321,7 +321,6 @@ window.addEventListener('load',
             var zIndexMatch = navTran.properties.match(/ -?\d /) ||
                               navTran.properties.match(/^-?\d /) ||
                               navTran.properties.match(/ -?\d$/);
-            console.log('XXX zIndex match:', zIndexMatch);
             var transition = {
               type: (navTran.properties.search(/\bexit\b/) !== -1) ?
                 'exit' : 'enter',
