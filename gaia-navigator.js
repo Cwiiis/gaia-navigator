@@ -39,7 +39,7 @@ function gnh_normaliseUrl(url) {
 }
 
 // Initiate a navigation to a url string
-function gnh_navigate(url) {
+function gnh_navigate(url, prepend) {
   // TODO: Handle if a transition starts during another transition?
 
   var newFrame = document.createElement('iframe');
@@ -57,7 +57,9 @@ function gnh_navigate(url) {
   gnhOldWindow = gnhNewWindow;
   gnhOldHasTransitions = gnhNewHasTransitions;
 
-  document.body.appendChild(newFrame);
+  prepend ?
+    document.body.insertBefore(newFrame, document.body.firstChild) :
+    document.body.appendChild(newFrame);
 
   gnhNewFrame = newFrame;
   gnhNewWindow = newFrame.contentWindow;
@@ -79,9 +81,6 @@ function gnh_transition() {
     { type: 'client-transition-from',
       name: name,
       backwards: gnhBackwards }, '*');
-  if (gnhBackwards) {
-    gnhOldFrame.style.zIndex = '1';
-  }
 
   name = gnhBackwards ? 'exit' : 'enter';
   gnhNewFrame.contentWindow.postMessage(
@@ -89,9 +88,6 @@ function gnh_transition() {
       name: name,
       backwards: gnhBackwards,
       historyLength: gnhNavHistory.entries.length }, '*');
-  if (!gnhBackwards) {
-    gnhNewFrame.style.zIndex = '1';
-  }
 }
 
 window.addEventListener('popstate',
@@ -114,7 +110,7 @@ window.addEventListener('popstate',
 
     gnhBackwards = newPosition < gnhNavHistory.position;
     gnhNavHistory.position = newPosition;
-    gnh_navigate(gnhNavHistory.entries[newPosition].url);
+    gnh_navigate(gnhNavHistory.entries[newPosition].url, gnhBackwards);
   });
 
 window.addEventListener('message',
@@ -136,7 +132,7 @@ window.addEventListener('message',
       gnhNavHistory.entries.push({ title: '', url: e.data.url });
       gnhNavHistory.position ++;
 
-      gnh_navigate(e.data.url);
+      gnh_navigate(e.data.url, gnhBackwards);
       history.pushState({ position: gnhNavHistory.position }, '', e.data.url);
       break;
 
@@ -186,7 +182,6 @@ window.addEventListener('message',
                                          backwards: gnhBackwards }, '*');
             }
             if (gnhNewHasTransitions || !gnhOldHasTransitions) {
-              gnhNewFrame.style.zIndex = '';
               gnhNewWindow.postMessage({ type: 'client-transition-to-end',
                                          name: e.data.name,
                                          backwards: gnhBackwards }, '*');
@@ -201,7 +196,6 @@ window.addEventListener('message',
         if (!gnhNewHasTransitions || gnhOldHasTransitions) {
           window.setTimeout(function() {
             if (!gnhNewHasTransitions) {
-              gnhNewFrame.style.zIndex = '';
               gnhNewWindow.postMessage({ type: 'client-transition-to-end',
                                          name: e.data.name === 'exit' ?
                                            'enter' : 'exit',
