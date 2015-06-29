@@ -204,10 +204,15 @@ The <a interface>CSSNavigationTransitionRule</a> interface represents a ''@navig
 
 <pre class="idl">
 interface CSSNavigationTransitionRule : CSSGroupingRule {
-  // TODO
+  attribute NavigationTransitionType type;
+  attribute DOMString duration;
+  attribute NavigationTransitionStart start;
+  attribute long zIndex;
 };
-</pre>
 
+enum NavigationTransitionType { "enter", "exit" };
+enum NavigationTransitionStart { "on-load", "immediate" };
+</pre>
 
 <h2 id="navigation-transition-events">Navigation transition events</h2>
 
