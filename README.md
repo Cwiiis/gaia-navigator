@@ -11,6 +11,7 @@ Gaia Navigator is a partial implementation of a specification proposal for [CSS 
 * The last declared `navigation-transition-z-index` will apply for the duration of all transitions.
 * `navigation-transition-z-index` will override the `z-index` of `document.body` children on the first loaded page.
 * The proposed CSSOM for this specification is not available using this shim.
+* Changing style properties on `html`, `body` or `iframe` during navigations on the first loaded page can have unexpected effects.
 
 ## TODO
 
