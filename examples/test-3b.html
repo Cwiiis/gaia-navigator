@@ -5,25 +5,25 @@
 
   <style>
     body {
-      margin: 0;
+      margin: 10vw;
       width: 100%;
       overflow-x: hidden;
       background-color: transparent;
     }
 
-    #bg {
+    #bg, #fg {
       position: absolute;
-      width: 100%;
-      height: 100%;
+      width: 80vw;
+      height: calc(100vh - 20vw);
+    }
+
+    #bg {
       background-color: white;
     }
 
     #fg {
-      position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
       opacity: 0;
     }
